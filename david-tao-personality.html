@@ -1,0 +1,2930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DAVID TAO · 你是哪一种陶喆音乐人格？</title>
+<meta name="description" content="以陶喆八张重要专辑为基础的音乐人格测试。八张唱片，八种表达，八种精神切面。">
+<meta property="og:title" content="DAVID TAO · 你是哪一种陶喆音乐人格？">
+<meta property="og:description" content="八张专辑，八种音乐表达，八种精神切面。">
+<meta name="theme-color" content="#efe9df">
+<style>
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * assets/style.css —— 深色沉浸式 · 现代编辑排版
+ *
+ * 设计约定：
+ *   1. 全部视觉为原创，不使用任何专辑封面、歌词或商业素材。
+ *   2. 深色底 + 每张专辑一道提亮后的霓虹强调色（--album-accent）。
+ *   3. 全部无衬线：不用衬线字体、不做旧，靠字号与字重的强对比建立层次。
+ *   4. 动效克制：仅入场、hover、进度条与折叠展开，不做炫技。
+ *   5. 移动端优先兼容：≤720px 时结果页双栏塌成单栏。
+ * ============================================================= */
+
+/* ---------------- 设计变量 ---------------- */
+:root {
+  --bg:         #0a0a0c;
+  --surface:    rgba(255,255,255,.045);
+  --surface-2:  rgba(255,255,255,.075);
+  --line:       rgba(255,255,255,.10);
+  --line-2:     rgba(255,255,255,.20);
+
+  --tx:         #f4f2ee;   /* 主文字 */
+  --tx-2:       rgba(244,242,238,.64);
+  --tx-3:       rgba(244,242,238,.38);
+
+  --ink:        #f4f2ee;
+  --album-ink:    #f4f2ee;  /* 由 JS 按专辑覆盖 */
+  --album-accent: #e2622a;
+
+  --r-lg: 26px;
+  --r-md: 16px;
+  --r-sm: 11px;
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+          "Noto Sans SC", sans-serif;
+  --mono: "SF Mono", "JetBrains Mono", "Cascadia Mono", "Roboto Mono",
+          Consolas, monospace;
+}
+
+/* ---------------- 基础 ---------------- */
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--tx);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  padding: 44px 20px 64px;
+  overflow-x: hidden;
+}
+
+/* 背景：顶部微光 + 极淡噪点（保留质感，去掉做旧的暗角） */
+.film-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 55% at 50% -12%, rgba(120,110,255,.16) 0%, transparent 62%),
+    radial-gradient(70% 45% at 88% 8%,  rgba(226,98,42,.10) 0%, transparent 60%);
+}
+.film-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ---------------- 卡片 ---------------- */
+.card {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,.018) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: 0 44px 90px -46px rgba(0,0,0,.95);
+  padding: 52px 46px 32px;
+  animation: rise .55s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------- 通用排版件 ---------------- */
+.kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+}
+
+.rule { height: 1px; background: var(--line); margin: 26px 0; }
+.rule-strong { height: 1px; background: var(--line-2); margin: 0; }
+
+.prose { font-size: 15px; line-height: 1.85; color: var(--tx-2); }
+.prose p { margin: 0 0 14px; }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ---------------- 按钮 ---------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--tx);
+  background: transparent;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease, border-color .2s ease,
+              transform .2s ease, opacity .2s ease;
+}
+.btn:hover { background: rgba(255,255,255,.08); border-color: var(--tx-3); }
+.btn:active { transform: scale(.985); }
+.btn:disabled { opacity: .3; cursor: not-allowed; }
+.btn.solid {
+  background: var(--album-accent, var(--tx));
+  color: #101013;
+  border-color: transparent;
+  font-weight: 800;
+}
+.btn.solid:hover {
+  background: var(--album-accent, var(--tx));
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.btn.big { padding: 17px 52px; font-size: 15px; }
+
+/* ---------------- 封面 / INTRO ---------------- */
+.cover { text-align: center; }
+
+/* ============ 大唱片 + 标题融合 ============
+   唱片放大并缓慢自转，中心标签写着 DAVID TAO；
+   主标题往上压进唱片下沿，形成「字压在唱片上」的封面感 */
+.disc-wrap {
+  position: relative;
+  width: clamp(212px, 57vw, 322px);
+  aspect-ratio: 1 / 1;
+  margin: 2px auto 0;
+}
+.disc-groove {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background:
+    radial-gradient(circle at 50% 50%, #0b0b0e 0 30.5%, transparent 31%),
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(255, 255, 255, .055) 0 1px,
+      transparent 1px 5px),
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .07), transparent 48%);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .5);
+  animation: disc-spin 52s linear infinite;
+  will-change: transform;
+}
+/* 一道高光掠过，像灯光照在唱片上 */
+.disc-groove::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 210deg,
+    transparent 0deg, rgba(255, 255, 255, .075) 26deg, transparent 64deg);
+}
+@keyframes disc-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .disc-groove { animation: none; }
+}
+
+.disc-label {
+  position: absolute;
+  inset: 30.5%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--album-accent, #e2622a);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .32);
+}
+.disc-label b {
+  font-family: var(--mono);
+  font-size: clamp(11px, 2.5vw, 15px);
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: #0a0a0c;
+}
+.disc-label i {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: clamp(7px, 1.7vw, 8.5px);
+  letter-spacing: .16em;
+  color: rgba(10, 10, 12, .6);
+}
+
+/* 标题压进唱片：负 margin + 抬高层级 */
+.cover h1 {
+  position: relative;
+  z-index: 2;
+  margin: clamp(-44px, -6.2vw, -24px) 0 22px;
+  font-size: clamp(31px, 7.4vw, 62px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+  text-shadow: 0 6px 30px rgba(0, 0, 0, .82);
+}
+
+.cover .leadline {
+  max-width: 27em;
+  margin: 0 auto 34px;
+  font-size: clamp(14.5px, 3.4vw, 17.5px);
+  line-height: 1.85;
+  color: var(--tx-2);
+}
+
+/* 规格标签 */
+/* 八张唱片槽：未解锁显示 ??? */
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 38px;
+}
+.index-cell {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 13px 11px 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease, opacity .2s ease;
+}
+.index-cell:hover { background: var(--surface-2); border-color: var(--line-2); }
+.index-cell.locked { opacity: .5; }
+.index-cell.locked:hover { opacity: .78; }
+.index-cell .y {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  display: block;
+  color: var(--tx-3);
+}
+.index-cell .n {
+  font-size: 12.5px;
+  font-weight: 600;
+  display: block;
+  line-height: 1.45;
+  margin-top: 3px;
+}
+.index-cell.locked .n {
+  color: var(--tx-3);
+  letter-spacing: .18em;
+  font-weight: 400;
+}
+
+/* 已解锁：用这张唱片自己的颜色亮起来 */
+.index-cell.hit {
+  border-color: var(--album-ink, var(--line-2));
+  background: var(--surface-2);
+}
+.index-cell.hit::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--album-ink, var(--tx));
+}
+.index-cell.hit .n { color: var(--album-ink, var(--tx)); }
+.index-cell.hit .y { color: var(--album-ink, var(--tx-3)); opacity: .75; }
+.index-cell.hit:hover { transform: translateY(-2px); }
+/* ---------------- 答题 / QUIZ ---------------- */
+.quiz-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+/* 曲目编号：唱片内页那种 mono 小字 */
+.track-no {
+  font-size: 11.5px;
+  letter-spacing: .2em;
+  color: var(--tx-2);
+}
+.track-no em {
+  font-style: normal;
+  opacity: .45;
+  margin: 0 2px;
+}
+
+/* 进度条做成唱片的沟槽：底槽有细刻度，已走过的部分带一点光 */
+.progress {
+  height: 4px;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,.11) 0 1px,
+      transparent 1px 9px),
+    rgba(255,255,255,.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--album-accent, var(--tx));
+  box-shadow: 0 0 10px -1px var(--album-accent, transparent);
+  transition: width .42s cubic-bezier(.22,.9,.3,1);
+}
+
+.q-dim { margin: 30px 0 8px; }
+
+.q-text {
+  font-size: clamp(22px, 4.4vw, 29px);
+  font-weight: 700;
+  line-height: 1.42;
+  letter-spacing: -.015em;
+  margin: 0 0 28px;
+}
+
+.options-list { display: flex; flex-direction: column; gap: 11px; }
+
+.option-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 17px 19px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.7;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.option-item:hover { border-color: var(--line-2); background: var(--surface-2); }
+.option-item.on {
+  border-color: var(--album-accent, var(--tx));
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--album-accent, transparent);
+}
+.option-item .key {
+  flex: none;
+  width: 23px;
+  height: 23px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  color: var(--tx-3);
+  transition: all .2s ease;
+}
+.option-item.on .key {
+  background: var(--album-accent, var(--tx));
+  border-color: transparent;
+  color: #101013;
+  font-weight: 700;
+}
+
+.nav-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+}
+.nav-actions .hint {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  color: var(--tx-3);
+}
+
+/* ---------------- 结果 / RESULT ---------------- */
+.result-head { text-align: center; margin-bottom: 38px; }
+.result-head .tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--tx-3);
+  margin-bottom: 22px;
+}
+.album-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.album-line .year {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--album-accent, var(--tx));
+}
+.album-line .kind {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--tx-3);
+}
+.album-line .ttl { font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
+.result-name {
+  font-size: clamp(34px, 7vw, 54px);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -.03em;
+  margin: 0 0 10px;
+}
+.result-head .en {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--tx-3);
+  margin-bottom: 20px;
+}
+.tagline {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--tx-2);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  gap: 34px;
+  align-items: start;
+}
+
+.block { margin-bottom: 26px; }
+.block h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--tx-3);
+  margin: 0 0 16px;
+}
+
+.trait { margin-bottom: 16px; }
+.trait .t {
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 3px;
+  color: var(--album-accent, var(--tx));
+}
+.trait .d { font-size: 14.5px; color: var(--tx-2); line-height: 1.78; }
+
+.ticks { list-style: none; margin: 0; padding: 0; }
+.ticks li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 11px;
+  font-size: 14.5px;
+  line-height: 1.78;
+  color: var(--tx-2);
+}
+.ticks li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--album-accent, var(--tx));
+  font-family: var(--mono);
+}
+.ticks.warn li::before { content: "!"; font-weight: 700; }
+
+.debate {
+  padding: 20px 22px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border-left: 3px solid var(--album-accent, var(--tx));
+}
+.debate p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--tx-2);
+}
+
+/* 推荐曲目：默认只露歌名，点开才给理由 */
+.song {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+.song:last-child { border-bottom: none; }
+.song .nm { font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; }
+.song .tg {
+  margin-left: 8px;
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--tx-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  vertical-align: 2px;
+}
+.song .wh {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--tx-2);
+}
+.song .deep {
+  align-self: flex-start;
+  margin-top: 6px;
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--album-accent, var(--tx));
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+.song .deep:hover { background: var(--album-accent, var(--tx)); color: #101013; }
+
+/* 八维条 */
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; align-items: center; gap: 9px; }
+.bar .lbl {
+  flex: none;
+  width: 30px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--tx-3);
+}
+.bar .track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255,255,255,.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar .track i {
+  display: block;
+  height: 100%;
+  background: rgba(255,255,255,.22);
+  border-radius: 999px;
+  transition: width .6s cubic-bezier(.22,.9,.3,1);
+}
+.bar .pc {
+  flex: none;
+  width: 42px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--tx-3);
+}
+.bar.top .track i { background: var(--album-accent, var(--tx)); }
+.bar.top .lbl, .bar.top .pc { color: var(--tx); font-weight: 700; }
+
+.dual {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+.dual .nm {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 9px 0 9px;
+}
+.dual .st { font-size: 13.5px; line-height: 1.78; color: var(--tx-2); }
+.dual .jump {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--album-accent, var(--tx));
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.closing {
+  font-size: 19px;
+  line-height: 1.9;
+  text-align: center;
+  color: var(--tx);
+  margin: 44px auto 0;
+  padding: 34px 0;
+  max-width: 560px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+}
+
+.result-foot { margin-top: 34px; }
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ---------------- 折叠区块（渐进披露） ---------------- */
+.fold {
+  border-top: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.fold:last-of-type { border-bottom: 1px solid var(--line); }
+.fold > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 17px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--tx);
+  transition: color .2s ease;
+}
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { color: var(--album-accent, var(--tx)); }
+.fold > summary::after {
+  content: "+";
+  flex: none;
+  font-family: var(--mono);
+  font-size: 19px;
+  line-height: 1;
+  color: var(--tx-3);
+  transition: transform .25s ease, color .2s ease;
+}
+.fold[open] > summary::after { content: "–"; color: var(--album-accent, var(--tx)); }
+.fold-body { padding: 0 2px 22px; }
+
+/* ---------------- 小签 ---------------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 13px;
+  font-size: 12px;
+  color: var(--tx-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.chip:hover { background: var(--surface-2); color: var(--tx); border-color: var(--line-2); }
+
+/* ---------------- 彩蛋 / BLIND BOX ---------------- */
+.blind {
+  margin-top: 32px;
+  padding: 30px 26px;
+  background: linear-gradient(150deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,.03) 100%);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-lg);
+  animation: rise .55s cubic-bezier(.22,.9,.3,1) both;
+}
+.blind .kicker { color: var(--tx-3); }
+.blind .title {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  margin: 11px 0 5px;
+}
+.blind .from {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--tx-3);
+  margin-bottom: 17px;
+}
+.blind p {
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--tx-2);
+  margin: 0 0 12px;
+}
+.blind .lyric {
+  font-size: 16px;
+  line-height: 1.8;
+  padding-left: 15px;
+  border-left: 2px solid var(--album-accent, var(--tx));
+  color: var(--tx);
+  margin: 17px 0;
+}
+.blind .note { font-size: 13px; color: var(--tx-3); }
+
+/* ---------------- 弹窗 / MODAL ---------------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(4,4,6,.76);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade .24s ease both;
+}
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+.modal {
+  width: 100%;
+  max-width: 620px;
+  max-height: 84vh;
+  overflow-y: auto;
+  background: #101013;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-lg);
+  padding: 34px 32px;
+  animation: rise .3s cubic-bezier(.22,.9,.3,1) both;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-2);
+}
+.modal-head h3 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.35;
+}
+.modal-head .en {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--tx-3);
+  font-weight: 400;
+}
+.modal-close {
+  flex: none;
+  padding: 7px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--tx-2);
+  background: transparent;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+.modal-close:hover { background: var(--surface-2); color: var(--tx); }
+
+.modal .body p {
+  margin: 0 0 14px;
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--tx-2);
+}
+.modal .meta {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  color: var(--tx-3);
+  line-height: 1.95;
+}
+.modal .foot { margin-top: 20px; }
+
+/* ---------------- 作者注 ---------------- */
+.author-note {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--tx-3);
+  line-height: 2;
+}
+
+/* ---------------- 提示条 ---------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 34px;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 80;
+  padding: 12px 24px;
+  background: var(--tx);
+  color: #101013;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .24s ease, transform .24s ease;
+  max-width: 88vw;
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------------- 移动端 ---------------- */
+@media (max-width: 720px) {
+  body { padding: 20px 12px 44px; font-size: 15.5px; }
+  .card { padding: 30px 20px 24px; border-radius: 20px; }
+  .disc { width: 104px; height: 104px; margin-bottom: 26px; }
+  .cover .sub { font-size: 15px; }
+  .cover .desc { font-size: 14px; }
+  .q-text { margin-bottom: 22px; }
+  .option-item { padding: 15px 16px; font-size: 14.5px; }
+  .result-name { letter-spacing: -.025em; }
+  .tagline { font-size: 15.5px; }
+  .closing { font-size: 17px; padding: 26px 0; }
+  .grid-2 { grid-template-columns: 1fr; gap: 26px; }
+  .index-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-actions .hint { display: none; }
+  .modal { padding: 26px 20px; max-height: 88vh; border-radius: 20px; }
+  .blind { padding: 24px 20px; }
+  .album-line .ttl { font-size: 18px; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari 上 backdrop-filter 开销大，弱化处理 */
+  .overlay { backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+}
+
+/* 尊重系统降低动效设置 */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 胶片噪点与暗角 -->
+<div class="film-bg" aria-hidden="true"></div>
+
+<main class="card" id="app-card">
+  <div id="content-area"></div>
+  <div class="author-note" id="author-note-container"></div>
+</main>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== 内容层：八张专辑 / 八种人格 / 40 首解读 / 8 枚彩蛋 ===== -->
+<script>
+/* ===== content/albums.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * content/albums.js —— 八张专辑的事实档案（内容层：八张唱片的客观档案）
+ *
+ * 编写原则：
+ *   1. 只写可查证的事实（发行日期、厂牌、曲目、已知的合作者与公开发售信息）。
+ *   2. 需要判断的地方，明确标注是【乐评观点】还是【创作阶段推测】。
+ *   3. 不引用未经确认的访谈原话；不用社交媒体段子当事实。
+ *   4. 不使用任何专辑封面图片，视觉全部为原创印刷设计。
+ * ============================================================= */
+
+window.DT_ALBUMS = [
+  {
+    id: 'dt1997',
+    code: 'SCD-9701',
+    no: '01',
+    year: 1997,
+    title: 'David Tao',
+    titleCn: '陶喆同名专辑',
+    kind: '录音室专辑 · 第 1 张',
+    release: '1997 年 12 月 6 日',
+    label: '侠客唱片 Shock Records',
+    producer: '陶喆、王治平、Jim Lee',
+    trackCount: 15,
+    palette: { ink: '#12294d', accent: '#c9d8ea', paper: '#e7ebf0' },
+    keywords: ['本真', '直觉', '自由', '身体感'],
+    lineup: [
+      'Airport Take Off', '飞机场的10:30', 'Airport Arrival', '爱，很简单', '沙滩',
+      '十七岁', '望春风', '王八蛋', '是是非非', '流沙', 'Take 6 Minus 3', '心乱飞',
+      '再见以前先说再见', '沙滩（钢琴版）', 'Answering Machine'
+    ],
+    facts: [
+      '这是一张几乎由他独自完成的专辑：作曲、编曲、演唱、和声、制作一手包办，因此声纹极其统一。',
+      '《望春风》是专辑里唯一非他作曲的曲目——把 1930 年代的台语老歌重编新唱，开头用 a cappella 人声当乐器。它常被视为中文传统曲调与西方 R&B 咬合的早期样本。',
+      '《飞机场的10:30》以班机起飞音效开场，是全专第一首正式曲目；《Answering Machine》以答录机留言收尾——整张专辑被做成了「一次旅程」的结构，而不是单曲的堆叠。',
+      '专辑里夹了三段十来秒的过场（Airport Take Off / Airport Arrival / Take 6 Minus 3），这在 1997 年的华语流行专辑里并不常见。',
+      '第 9 届金曲奖：获最佳新人、最佳唱片製作人；《沙滩》入围最佳作曲人。同年获中华音乐人交流协会十大专辑，《沙滩》获十大单曲。'
+    ],
+    sound: '整张专辑的底色是 Contemporary R&B：中慢板的鼓组、电钢琴与干净的电吉他清音，和声堆叠厚但不浑浊。它最关键的贡献不在旋律，而在「咬字」——把中文四声放进黑人音乐的转音与切分里，让中文第一次可以这样「哼」。但专辑并非只有柔的部分：《王八蛋》是摇滚 funk，《是是非非》带说唱结构，《十七岁》揉合中国风线条，三段过场音效则让全专像一张首尾相接的唱片，而不是十首单行曲。它的不完美也很明显：部分编曲放到今天听会显得朴素，转音的密度是天赋也是习惯。',
+    view: '它通常被写成华语 R&B 的开山作之一——这一点争议不大。真正值得讨论的，是「开山」这个词掩盖的另一面：这张专辑的成功让市场迅速把「R&B」当成标签贴在他身上，而他后面十年一直在撕这张标签。'
+  },
+
+  {
+    id: 'ok1999',
+    code: 'SCD-2001',
+    no: '02',
+    year: 1999,
+    title: "I'm OK",
+    titleCn: 'I’m OK',
+    kind: '录音室专辑 · 第 2 张',
+    release: '1999 年 12 月 10 日',
+    label: '侠客唱片 Shock Records',
+    producer: '陶喆',
+    trackCount: 13,
+    palette: { ink: '#7a2d13', accent: '#e8b489', paper: '#f1e6dd' },
+    keywords: ['矛盾', '反差', '自嘲', '复杂度'],
+    lineup: [
+      'Doxology', '找自己', '小镇姑娘', '夜来香', '普通朋友', "I'm OK", '不一样',
+      '说走就走', '多谢你', '马戏团', '天天', 'Angeline', 'Amen'
+    ],
+    facts: [
+      '开场曲《Doxology》只有几十秒的圣咏，收尾曲《Amen》同样极短——一头一尾把整张专辑框成一次「礼拜」，但里面的内容并不宗教。',
+      '《找自己》是现代摇滚的节奏；《小镇姑娘》用了 Big Band 管乐；《马戏团》是 Ska 节奏；《Angeline》走向 80 年代 New Wave；《夜来香》完全以 a cappella 重唱黎锦光 1940 年代的老歌。',
+      '同名曲《I’M OK》被认为首度出现 Hard Rock 编制，并混入国乐与电子音色。',
+      '第 11 届金曲奖：获最佳专辑製作人；专辑入围最佳国语专辑，《找自己》入围最佳作曲、最佳编曲、最佳音乐录影带。',
+      '曲目数在不同版本间存在出入（部分版本未收《不一样》），本测试以 13 曲版本为准。'
+    ],
+    sound: '如果说第一张是「把 R&B 学会」，这张是「把学会的东西拆开」。R&B 在这里不再是风格本身，而成了催发剂：管乐进来是复古蓝调，Ska 进来是戏谑，New Wave 进来是华丽，Hard Rock 进来是第一次出现的怒气。整张专辑听下来像一个人同时装了好几种情绪——明知互相矛盾却不肯删掉任何一种。技术上，和声编写依然是他最稳的武器，《普通朋友》《天天》把多声部叠得极稳；而节奏留白的处理则比首张更松、更敢留白。它的问题也正是它的优点：曲风跨度大到几乎不构成统一听感，有人叫它丰富，有人叫它散。',
+    view: '多数乐评把它视为陶喆「真正大展拳脚」的一张：不再是单一语言，而是杂食。但也有反向意见——认为这种杂食削弱了首张专辑那种安静的感染力。这个分歧本身就很符合这张专辑的性格。'
+  },
+
+  {
+    id: 'bt2002',
+    code: 'BT-0201',
+    no: '03',
+    year: 2002,
+    title: '黑色柳丁',
+    titleCn: '黑色柳丁',
+    kind: '录音室专辑 · 第 3 张',
+    release: '2002 年 8 月 9 日',
+    label: '侠客唱片 Shock Records',
+    producer: '陶喆',
+    trackCount: 13,
+    palette: { ink: '#0f0f0d', accent: '#e2622a', paper: '#e2e0da' },
+    keywords: ['清醒', '批判', '社会观察', '不肯移开视线'],
+    lineup: [
+      '黑色柳丁', '今天晚间新闻', 'Dear God', 'Angel', '讨厌红楼梦', '蝴蝶',
+      '宫保鸡丁', 'Melody', '月亮代表谁的心', '二十二', 'My Anata', '摇篮曲',
+      'Katrina (Demo)'
+    ],
+    facts: [
+      '第 2 轨《今天晚间新闻》不是歌，是剪辑起来的新闻片段，被放在专辑最前面当「序」——听完它，后面的愤怒才有出处。',
+      '《蝴蝶》作曲署名包含 Brad Olynyk；《宫保鸡丁》是朱敬然参与创作并说唱；《月亮代表谁的心》在原曲作者之外加入了陶喆与娃娃的改写。',
+      '《Katrina (Demo)》《清楚地第二百九十二行》以 demo 形态收录，这在以完整度见长的华语主流专辑里是少见的自我暴露。',
+      '结尾《摇篮曲》是一首故意温柔的收束——从社会议题退回到一个人的睡前。',
+      '获中华音乐人交流协会 2003 年十大专辑，《Dear God》获十大单曲；获 2002 年度 IFPI 香港唱片销量大奖十大销量国语唱片。'
+    ],
+    sound: '这是他从 R&B 转向摇滚与重编成最激进的一张。失真吉他、厚底鼓、更硬的唱腔出现在《黑色柳丁》《讨厌红楼梦》《My Anata》里；而《摇篮曲》《Melody》《二十二》又把 R&B 柔软的那一面重新摊开。两条线并置，不是「兼顾快慢歌」，而是同一张唱片里同时装了愤怒和安抚。结构上它比前两张更有概念企图：新闻剪辑开门、摇篮曲收尾，中间的排列被刻意用来控制情绪起伏。争议点也很清楚——有人觉得这是他最有担当的一张，也有人认为摇滚部分仍停留在「借鉴」而非「自成语言」，重型编制没能完全消化。',
+    view: '它被普遍读作一张社会观察之作（《今天晚间新闻》《Dear God》承接了 2001 年前后的时代情绪）。但同样有乐评提醒：把它当成一张纯粹的「批判专辑」会漏掉《摇篮曲》《Katrina》这些处理私人情绪的部分——它批判的背面一直藏着疲惫。'
+  },
+
+  {
+    id: 'us2003',
+    code: 'ED-0302',
+    no: '04',
+    year: 2003,
+    title: 'Ultrasound 乐之路 1997–2003',
+    titleCn: '乐之路',
+    kind: '精选辑（含新作与 demo 盘）',
+    release: '2003 年 8 月 8 日',
+    label: 'EMI Music Taiwan / 侠客唱片',
+    producer: '陶喆',
+    trackCount: 15,
+    palette: { ink: '#22394a', accent: '#9fbfd0', paper: '#e6ebee' },
+    keywords: ['好奇', '过程', '半成品', '持续勘探'],
+    lineup: [
+      '今天没回家', '王八蛋', '普通朋友', '小镇姑娘', '沙滩', '飞机场的10:30',
+      'My Anata', '我喜欢', '天天', 'Melody', '找自己', '寂寞的季节', '黑色柳丁',
+      '爱很简单', 'Runaway'
+    ],
+    facts: [
+      '这不是普通精选：除了已发表曲目，它收录了《今天没回家》《我喜欢》《Runaway》等此前未发表作品，《寂寞的季节》《今天没回家》都成了新阶段的代表作。',
+      'Bonus disc 是一整盘的「半成品」：《飞机场的10:30 (Original Demo)》《黑色柳丁 (Original Voice Recorder Ideas)》《沙滩 (A Cappella Demo Version)》《沙滩 (Guitar Version)》《爱很简单 (Original 1993 English Demo)》——把 1993 年写 demo 的录音直接公开。',
+      '《飞机场的10:30 (Original Demo)》长达五分多钟，与正式版的差别完整地摊在听众面前：，它可以被理解为一次「示范守则不隐蔽」的动作。',
+      '《今天没回家》登上 Hit Fm 年度百首单曲 2003 年第 6 位。',
+      '同期另有影像作品 Ultrasound 纪录片与《Soul Power 现场原音专辑》——2003 年对他是一个「回顾之年」。'
+    ],
+    sound: '把「过程」当成产品的一部分，这在 2003 年的华语主流唱片里是相当罕见的诚实举动。正式版本的《沙滩》人声叠得很厚、转音密集；而 demo 版本只有吉他或纯人声，同一个旋律的骨架裸露出来，你听得见它「原来长什么样」。「半成品」与「成品」的对照本身就是内容：它让人听见最终实现了什么，也让人听见放弃过什么。新歌《今天没回家》《我喜欢》延续了他对 R&B 节奏的掌握，但编曲的密度不如正式专辑，那种「未完成时」的松弛反而成了这张作品的气质。',
+    view: '这张在讨论中长期被当作「凑数精选」跳过，这是最大的误读。它的价值恰恰在于那张 bonus disc——华语主流歌手愿意把 1993 年的英语 demo 放进正式发行物，需要相当大的自我接受程度。'
+  },
+
+  {
+    id: 'tp2005',
+    code: 'TP-0501',
+    no: '05',
+    year: 2005,
+    title: '太平盛世',
+    titleCn: '太平盛世',
+    kind: '录音室专辑 · 第 4 张',
+    release: '2005 年 1 月 21 日',
+    label: 'EMI / 金牌大风',
+    producer: '陶喆',
+    trackCount: 13,
+    palette: { ink: '#7c1f16', accent: '#d9a05b', paper: '#efe6dc' },
+    keywords: ['有根', '结构', '传统改造', '革新'],
+    lineup: [
+      '鬼 (Overture)', '鬼', 'Catherine', '就是爱你', '孙子兵法', '爱我还是他',
+      'Susan说', '无缘', 'Sula 与 Lampa 的寓言', '2Night·藏爱', '她的歌',
+      '爱是个什么东西', '祈祷良辰歌'
+    ],
+    facts: [
+      '《孙子兵法》与女子十二乐坊合作，把民族乐器插入西洋编制；《Susan说》把京剧《苏三起解》的唱段「苏三离了洪洞县」接进 R&B 拍子，中间夹了一段仿古念白。',
+      '《Catherine》看似情歌，实际是写给母亲的；《她的歌》副标题 Song for Anita，献给梅艳芳。',
+      '专辑以《鬼 (Overture)》开场、以《祈祷良辰歌》收尾——基督宗教的框架包裹着对时代风气的观察。',
+      '宣传期他曾提出过「less is more」的做法，一首歌严格控制进入的乐器数量（以当时的宣传说法为准）。',
+      '第 17 届金曲奖：获最佳国语流行音乐演唱专辑；另获华语音乐传媒大奖最佳录音。'
+    ],
+    sound: '这张专辑最值得听的是「咬合」而非「融合」。《Susan说》不是把京剧当佐料撒上去，而是让京剧的咬字逻辑和 R&B 的切分在同一句里争夺位置，中间那段念白把两条时间轴的裂缝直接暴露出来。《孙子兵法》里古筝类乐器与鼓组的对撞，也是同样的思路——不抹平差异，让差异发声。另一条线索是他的和声：《爱我还是他》《无缘》把多声部堆叠到近乎室内乐的程度，乐句短、留白多，讯息密度反而上升了。批评意见主要在于主题被认为偏重、线索杂，个别曲目单独拆出来听，水准落差会比较明显。',
+    view: '它被授予金曲奖最佳国语专辑，同时也被部分评论认为「想说的太多」。两种评价其实指向同一件事：这是一张把文化身份当成技术问题来处理的专辑——既不是纯粹的中式复古，也不是纯西方技术的搬运。'
+  },
+
+  {
+    id: 'be2006',
+    code: 'BE-0601',
+    no: '06',
+    year: 2006,
+    title: '太美丽',
+    titleCn: '太美丽',
+    kind: '录音室专辑 · 第 5 张',
+    release: '2006 年 8 月 4 日',
+    label: 'EMI 百代唱片',
+    producer: '陶喆',
+    trackCount: 13,
+    palette: { ink: '#6d3a44', accent: '#dca9a2', paper: '#f2e7e5' },
+    keywords: ['感受力', '温柔', '流逝', '生活美学'],
+    lineup: [
+      '太美丽广播电台', '忘不了', '太美丽', '追', '那一瞬间', 'Walk On',
+      '自导自演的悲剧', '祝你幸福', '似曾相识', '今天你要嫁给我', '每一面都美',
+      '不爱', 'Olia'
+    ],
+    facts: [
+      '开场曲《太美丽广播电台》是一段电台串场，把整张专辑假装成一次深夜广播节目——这是他继首张专辑之后，又一次把唱片伪装成别的东西。',
+      '《忘不了》英文名 Can’t Get You Outta My Mind，词曲署名保留了《不了情》的原作者陶秦与王福龄：它不是取样，而是一次结构上的改写，把老抒情拉进当代律动，制造时空错位。',
+      '《今天你要嫁给我》原本写成独唱，后来改为与蔡依林对唱，Rap 部分模拟牧师司仪的口吻。',
+      '专辑里有数首广告性质曲目（如《每一面都美》），这一点在当年引发大量讨论。',
+      '2007 年全球华语歌曲排行榜：获最佳男歌手、最佳专辑、最受欢迎对唱歌曲、最佳製作人等奖项；同年 Hito 流行音乐奖获製作人、作曲人等奖。'
+    ],
+    sound: '和前一张的外部视线相反，这张把镜头调回内心。它的音响目标是「轻」：细致的钢琴织体、克制的鼓组、大量轻铺的和声，几乎没有失真带来的尖锐音色。《忘不了》的处理最有代表性——老歌的旋律骨架保留，但节奏被推到当代 R&B 的拍子里，导致你分不清自己在哪个年代。《追》《Walk On》保留了节奏的实验，《自导自演的悲剧》《那一瞬间》则走钢琴抒情的路线。这种「好听到没有阻力」既是它的技艺证明，也是当时被批评的原因：当每一轨都太合适，听觉上就缺少需要翻越的地方。',
+    view: '这是八张里口碑最撕裂的一张。2006 年《新锐唱片评审团》的评语几乎一边倒：「不进反退，无功即过」「流水线上又一张普通产品」；也有乐评人持正面意见，认为它胜在情真意切。陶喆本人回应过：这是回归内心世界的一张，「与矾社会批判无关」，并举例 Sting 的《Mercury Falling》——有些唱片要过一阵子才听得懂。这段距离本身值得被保留，而不是被后来的单曲热度抹平。'
+  },
+
+  {
+    id: 'op2009',
+    code: '69-0901',
+    no: '07',
+    year: 2009,
+    title: '69乐章',
+    titleCn: '六九乐章 · Opus 69',
+    kind: '录音室专辑 · 第 6 张',
+    release: '2009 年 8 月 21 日',
+    label: '金牌大风',
+    producer: '陶喆',
+    trackCount: 14,
+    palette: { ink: '#1b2b3a', accent: '#c2ccd6', paper: '#e4e7ea' },
+    keywords: ['不妥协', '锋芒', '行动力', '回到原点'],
+    lineup: [
+      '愿主怜悯', '乱七∞糟', '暗恋', 'Play', '火鸟功', '雪豹', '关于陶喆',
+      '我太傻', '请继续，任性', '中国姑娘', '谁的奥斯卡？', '应征爱', '你的歌', '桂冠英雄'
+    ],
+    facts: [
+      '「69」是多重的：他的出生年份 1969；也恰好是他的第 6 张专辑、第 9 张音乐作品；宣传中亦提到日文中与Rock 的发音相近、易经里的阴阳翻转等说法。',
+      '开场《愿主怜悯》(Kyrie Eleison) 是一首没有他独唱的童声合唱，只有一分多钟，像一段祈祷，放在整张摇滚专辑的第一轨。',
+      '《乱七∞糟》副歌引入合唱团声场，被乐评形容为「既神圣又诡谲」的一类尝试。',
+      '《关于陶喆》是一首自述式作品，里面嵌入了他早期为 L.A. Boyz 写的《金斯顿的梦想》，也回应了当时的「一哥之争」等话题；和音里藏了一句「你又不是王力宏」。',
+      '《暗恋》由他自编自导自演短片《暗恋映像》，主演杨谨华——影像先行，再回头做音乐。',
+      '专辑主张抛弃「R&B 教父」封号，改以 Band Sound 为基调做摇滚。'
+    ],
+    sound: '这是八张里最接近「一张唱片不是一个人的独白，而是一个乐队在房间里演奏」的作品：吉他 riff、真鼓、贝斯线取代了此前占主导的 programmed 律动，人声的处理也偏向更硬的中低音区（《Play》把共鸣点往下调，听感几乎不像过去的他）。代价同样清楚：多位乐评人指出它的摇滚味「偏薄」，《关于陶喆》后半段的桥段被认为有 Queen 的痕迹，14 首曲目长度上升为负担。也就是说，它最有力的地方不在「是否摇滚」，而在「他愿意把自己的标签烧掉」这件事本身——《愿主怜悯》放在第一轨就是一个姿态：先把自己清空，才开始。',
+    view: '这是他本人的最爱，但不是公认的最佳——这个落差本身就是这张专辑的注脚。网易音乐评审团给分普遍在 6.5 上下，肯定与疑虑混在一起。有人说它勇敢，有人说它是「初级的摇滚模仿」。陶喆此后多次公开说这是他最喜欢的一张作品。两种说法可以同时成立。'
+  },
+
+  {
+    id: 'hg2013',
+    code: 'GR13C0001',
+    no: '08',
+    year: 2013,
+    title: '再见你好吗',
+    titleCn: 'Hello Goodbye',
+    kind: '录音室专辑 · 第 7 张',
+    release: '2013 年 6 月 11 日',
+    label: '伟大文化 / 种子音乐',
+    producer: '陶喆',
+    trackCount: 13,
+    palette: { ink: '#5c4326', accent: '#cdb996', paper: '#efe8db' },
+    keywords: ['回望', '接纳', '沉淀', '好好告别'],
+    lineup: [
+      'Hello', '勿忘我', '一念之间', '逗阵兄弟 (feat. 卢广仲)', '真爱等一下 (feat. 蔡健雅)',
+      '好好说再见 (feat. 关诗敏)', '上爱唱的歌', '那个女孩 (feat. 卢广仲)', 'The Promise',
+      '因为爱', '小小的你', 'All For Joy (feat. 关诗敏)', '逗阵兄弟'
+    ],
+    facts: [
+      '曲目名在不同资料中标为《上爱唱的歌》与《最爱唱的歌》两说：这是他首次新写台语歌，由武雄作词，向父亲致意。此类命名差异以专辑内页为准。',
+      '《勿忘我》用了约德尔（Yodel）唱法进行真假音急速交替，这在他的作品里是很少见的技术选择。',
+      '全专近一半是对唱：与卢广仲《逗阵兄弟》《那个女孩》、与蔡健雅《真爱等一下》、与关诗敏《好好说再见》《All For Joy》。',
+      '作词阵容首次包含林夕（《The Promise》）、武雄、黄婷；作曲也开始与他人共同完成。',
+      '配器上使用了尼龙弦吉他、电子合成器、竖琴等被他称为「被遗忘已久的音色」，压在现代编曲之上。'
+    ],
+    sound: '这里最重要的音乐决定不是某一首歌，而是「吉他的种类」——整张专辑以尼龙弦吉他为骨干，音色比专辑封面想象中更软、更旧，却按非常当代的编曲逻辑排列。这种「把旧音色放进新结构」的做法与《再见你好吗》的主题同构：不为复古，而是让过去的东西有机会被重新认识。和声不再是炫技式的堆叠，而是服务对话——尤其是几首对唱，两个声部互相接话、抢话、抢话之后又合拢（《那个女孩》最明显）。《勿忘我》的约德尔段落是一次明显的「技术回归」，但它服务于「呼唤—回应」的意象：像在山谷里喊一个人，回来的是回声。',
+    view: '评价相对温和，但也有明显的两派：一派认为这是中年之后的心境自然回落，很实在；另一派直言「不够狠」「Eclipse 少了即兴」，甚至有人怀疑创作力下降。评论者也普遍注意到一个事实：这张专辑几乎在结构上就是一次「对话练习」——它本来就不打算一个人唱完。'
+  }
+];
+
+
+/* ===== content/personalities.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * content/personalities.js —— 八种人格的全部文案（内容层）
+ *
+ * 字段说明（改文案时照着填即可，删字段会触发 check.js 报错）：
+ *   name/en       人格名与英文代号，出现在结果页大标题
+ *   tagline       一句话画像，要求文学性但不煽情
+ *   traits        核心性格 3-4 条：t 标题、d 一句展开
+ *   strengths     优势 3 条（要具体，不要「善良、勇敢」这类词）
+ *   blindspots    潜在盲区 3 条（必须写缺点，写优点的地方不缺软件公司的夸奖）
+ *   love/people/reality   面对爱情 / 人际关系 / 现实生活的态度
+ *   analysis      对应专辑的音乐分析，必须落到具体曲目
+ *   debate        关于这张专辑的另一种声音（争议不回避）
+ *   songs         推荐聆听，why 必须回答「为什么这首歌能代表这种人格」
+ *                 tag 标明是否为非主打 / demo / 遗珠
+ *   closing       结尾文字，要求有辨识度
+ * ============================================================= */
+
+window.DT_PERSONAS = {
+
+  /* ---------- 01 ---------- */
+  dt1997: {
+    name: '未修饰的人',
+    en: 'The Unvarnished',
+    tagline: '你还没学会在说话之前先检查一遍。这不是修养问题，这是你的速度——你宁可补一句道歉，也不想错过那一刻的直觉。',
+    traits: [
+      { t: '直觉先于判断', d: '你想不清楚为什么，但你知道不对劲。多数时候你信这个「一会儿」。' },
+      { t: '身体比语言诚实', d: '计划还没排好，人已经在路上了。你称之为意识超前，别人称之为冲动。' },
+      { t: '不擅长含糊', d: '委婉的话在你嘴里会变短，会变直，最后变成一句连你自己都觉得重的话。' },
+      { t: '恢复得很快', d: '摔了你也会疼，但疼完就完了，你不太会把同一件事疼第二遍。' }
+    ],
+    strengths: [
+      '在大家还在评估利弊的时候，你已经把事情做了一半——很多机会只认速度。',
+      '你的真诚有穿透力。别人花三个月建立信任，你用一次不设防就到了。',
+      '不怕丢脸是你最大的资产：它允许你试别人不敢试的东西。'
+    ],
+    blindspots: [
+      '「我是为你好」和「我懒得包装」你常常分不清，而听的人分得清。',
+      '你对流程、审批、反复确认这类东西缺乏耐心，也因此容易在细节上翻车。',
+      '你以为真诚可以抵掉一切后果，但有些后果恰恰是真诚带来的。'
+    ],
+    love: '你受不了试探期。喜欢就说明白，不喜欢的信号你也给得很清楚——你觉得把话憋着是对两个人的浪费。代价是：你容易在对方还在犹豫时就把气氛推到必须回应的位置，然后把它误读成拒绝。',
+    people: '身边的人知道你反应不可预测，但可信任，因为你的表态从不打折。风险在于，你对沉默的人缺乏耐心——你总觉得「不说话就是没问题」，而有些人恰恰相反。',
+    reality: '你相信先做出来再改。世界对你的反馈通常不差，因为你的粗糙版本往往比别人的完美计划更接近真实答案。真正会绊倒你的不是失败，是你拒绝回头修第二次。',
+    analysis: '你对应的这张唱片，几乎是他一个人完成的：作曲、编曲、演唱、和声、制作。它的重要性不在某首歌，而在「咬字」——中文的四声第一次被放进黑人音乐的转音与切分里，还能站得住。第 1 首《飞机场的10:30》用班机起飞的音效开场，第 15 首《Answering Machine》用一段答录机留言收尾，中间还夹着两段机场过场音效：整张专辑被做成「一次旅程」而不是十首单曲的集合。最能代表你的是第 8 首《王八蛋》——摇滚 funk 的节奏，直接、难听地骂，毫无修辞。而第 7 首《望春风》恰好证明你不是只有直：他把一首 1930 年代的台语老歌重编，开头用纯人声 a cappella 当乐器，那是同一个人的另一面。',
+    debate: '这张专辑通常被称为华语 R&B 的开山作之一，争议不大。真正值得知道的副作用是：它的成功让「R&B 教父」这个标签贴死在他身上，而他后面十年一直在撕这张标签——直到《69乐章》干脆说不做 R&B 了。被自己的最强项定义，往往比被埋没更难处理。',
+    songs: [
+      { name: '飞机场的10:30', tag: '开场曲', why: '班机起飞的音效先于音乐出现。它讲的就是「还没想好就起飞」这件事，而你的人生多半也这样开始。' },
+      { name: '王八蛋', tag: '非主打', why: '难得在不骂脏字的摇滚 funk 里把厌恶说完整。它提醒你：直是资产，但当直变成攻击时，你自己听不见音量。' },
+      { name: '是是非非', tag: '非主打', why: '带说唱结构的一首，在是与非之间反复抽打。它不像你听的那些吵架歌，它更像你脑子里想的。' },
+      { name: '十七岁', tag: '非主打', why: '中国风线条与 R&B 的早期实验。你的「不喜欢装箱」在这里能找到一个三十年前的先例。' },
+      { name: '心乱飞', tag: '遗珠', why: '短、轻、没什么负担，像你处理情绪的方式：不追究，让它自己飞走。' }
+    ],
+    closing: '你不需要被修好。你需要的只是一个不会因为你没想清楚就不让你走的人。'
+  },
+
+  /* ---------- 02 ---------- */
+  ok1999: {
+    name: '笑着撑住的人',
+    en: 'The Crooked Grin',
+    tagline: '你讲的笑话是真的，只不过它同时也是盾牌。别人笑的是你的幽默，你自己知道那句话有一半是认真的。',
+    traits: [
+      { t: '情绪同时走两条线', d: '嘴上在打趣，心里在记分。这两件事互不干扰，也互不相救。' },
+      { t: '用玩笑递真话', d: '你最诚实的话通常包在一句玩笑里。被当成玩笑时，你会松一口气，也会遗憾一下。' },
+      { t: '复杂但不混乱', d: '你能同时容纳两种相反的感受，不急着把它统一成一个结论。' },
+      { t: '嘴硬心软的顺序是固定的', d: '先撑住场面，情绪留到没人时自己处理——这个顺序你很少改。' }
+    ],
+    strengths: [
+      '你能在最难堪的场面里找回一点空气，这一点几乎没有替代品。',
+      '你看人准。因为你长期处于「正在观察」的状态，几乎漏不掉细节。',
+      '你的承受力来自弹性而不是硬度——硬的人会断，你会弯过去。'
+    ],
+    blindspots: [
+      '大家都以为你没事，于是没人来问你。这个结果的导演是你。',
+      '你习惯把真话打折出售，久了会忘了原价是多少。',
+      '你对「沉重」有一种近乎本能的回避，包括别人的沉重。'
+    ],
+    love: '你表达喜欢的方式是逗对方笑，然后在一句玩笑里塞进一句真的承诺——塞得太隐蔽，以至于对方常常没听见。一旦对方当真或不理你，你都能自圆其说：这就是你的保护机制，也是你最大的误会来源。',
+    people: '你是那个负责调节气氛的人，也因此在朋友圈里显得「最好说话」。实际上你心里有一本很清楚的账，只是你从不结账。这本账不是记仇，是你确认自己还在乎的方式。',
+    reality: '你处理不了的事情会先被幽默化处理，等到能直视了再拿出来。这个办法效率意外地高，代价是：有些事拖到你想处理时，人已经走远了。',
+    analysis: '这张专辑最不像它看起来那么轻松。开场曲《Doxology》是几十秒的圣咏，收尾《Amen》同样极短——一头一尾把整张唱片框成一次礼拜，但里面的内容完全不宗教。中间是彻底的风格混种：《找自己》是现代摇滚，《小镇姑娘》用了 Big Band 管乐，《马戏团》走 Ska 节奏，《Angeline》是 80 年代 New Wave，而《夜来香》整首用纯人声 a cappella 重唱黎锦光 1940 年代的老歌。同名曲《I’m OK》是他第一次动用 Hard Rock 编制的作品之一，混入国乐与电子音色。把这些放在一张唱片里，不是兼容，是承认自己同时是好几个人——讽刺的是，专辑名字偏偏叫「我没事」。',
+    debate: '多数乐评认为这是他真正放开手脚的一张，杂食、丰富而且敢；也有反向意见认为曲风跨度太大，缺少统一情绪，甚至不如首张那样有安静的感染力。这个分歧本身就是这张唱片的性格：它是矛盾本身的产物，指望它统一是不可能的。',
+    songs: [
+      { name: "I'm OK", tag: '同名曲', why: '专辑里第一次出现的 Hard Rock 编制。它是这张唱片最不幽默的一首，也是它最诚实的一首。' },
+      { name: '多谢你', tag: '非主打', why: '轻得像随口一说，却把告别和感激放在同一句里。你的表达方式大致如此。' },
+      { name: '马戏团', tag: '非主打', why: 'Ska 节奏加戏谑歌词。热闹是真的，荒谬也是真的——它替你说了那句「大家都在演」。' },
+      { name: '说走就走', tag: '非主打', why: '长达五分多钟的 R&B，散得开也收得住。它是你情绪容量的一张证词。' },
+      { name: '夜来香', tag: '翻唱', why: '整首纯人声重唱老歌，不用任何乐器。当全世界都在加东西的时候，他选择抽掉全部。' }
+    ],
+    closing: '总有一天你会遇见听得出那句玩笑里有真话的人。在那之前，你的玩笑做得很好。'
+  },
+
+  /* ---------- 03 ---------- */
+  bt2002: {
+    name: '不肯闭上眼的人',
+    en: 'The Sleepless',
+    tagline: '你不是悲观，你只是不肯假装没看见。真正的麻烦在于：你看见了，然后你仍然得跟所有人一起吃早饭。',
+    traits: [
+      { t: '对装的东西过敏', d: '正确的废话、和稀泥、礼貌的谎言——你一听见就烦躁，然后不得不坐下。' },
+      { t: '看得太多', d: '你能很快拆出一个局面里谁在让步、谁在表演。这是一种能力，也是一种负担。' },
+      { t: '宁愿难受也不要钝', d: '如果代价是变得麻木，你宁愿保持痛觉。' },
+      { t: '只对少数人柔软', d: '你的温柔不是平均分配的，它有明确的白名单。' }
+    ],
+    strengths: [
+      '你的判断很少被情绪裹挟，因为在情绪到达之前你已经把结构拆完了。',
+      '你说真话的样子会让周围的人松一口气——有人开了头，其他人就不用演了。',
+      '你对压力事件有解读能力，混乱的局面里你往往是那个先给出语言的人。'
+    ],
+    blindspots: [
+      '你容易把「看穿」当成处理。看穿不等于解决，你有时候懒得走第二步。',
+      '你对装的东西过敏，久了会发展成对「不够真诚的人」缺乏基本耐心，包括那些只是笨拙的人。',
+      '你的锋利底下其实是疲惫，但你习惯用锋利来掩盖疲惫，所以别人看不到你累。'
+    ],
+    love: '你要的不是甜，是确认：确认对方也是一个愿意把话说到底部的人。你受不了被哄，也受不了哄人。关系里最危险的是你会用「我不说你也该懂」做测试，而测试的结果往往是你先失望。',
+    people: '你在群体里通常有两个位置：要么是被依赖的那个「说实话的人」，要么是被嫌的那个「扫兴的人」。这两个位置其实是同一个位置，只是听的人不同。',
+    reality: '你对现实的判断常常是对的，而「对了但改变不了」这件事给你的消耗，比对本身更大。你需要的不是更锋利，是一个允许你停一下的地方。',
+    analysis: '这是他从 R&B 转向重型编制最激进的一张，也是他第一次把「外部世界」正式写进专辑。第 2 轨《今天晚间新闻》根本不是歌，是剪辑起来的新闻片段——它被放在最前面当序，某种意义上是在说：听完这个，后面的愤怒才有出处。同名曲《黑色柳丁》和《讨厌红楼梦》《My Anata》用失真吉他和更硬的唱腔；而《摇篮曲》《Melody》《二十二》又把 R&B 柔软的那一面重新摊开。愤怒和安抚被强行放在同一张唱片里，中间靠的就是那条新闻。专辑以《摇篮曲》收尾，等于从社会议题退回一个人的睡前；而 Bonus Track《Katrina (Demo)》以未完成的形态附入，是又一次罕见的自我暴露。',
+    debate: '它被普遍读作社会观察之作，但也有意见认为：把它当成纯粹的「批判专辑」会漏掉《摇篮曲》《二十二》这些处理私人情绪的曲目。批判的背面是疲惫，这张唱片其实两者都写了。另外，摇滚编制是否被真正消化也一直有争论——认可者说它够狠，质疑者认为重型部分仍带借鉴痕迹。',
+    songs: [
+      { name: '黑色柳丁', tag: '同名曲', why: '重型吉他推到台前，但它不装英雄，副歌里全是「或许我只是个没有出息的小虫」。真正的清醒允许自己软弱。' },
+      { name: '今天晚间新闻', tag: '录音剪辑', why: '它不是歌。把它放在第 2 轨是一个态度：在进入情绪之前，先听一下这个世界。' },
+      { name: '摇篮曲', tag: '非主打', why: '整张专辑的收尾。一个人在看了那么多之后，还是得哄自己睡着——这是你最容易被忽略的一面。' },
+      { name: 'My Anata', tag: '非主打', why: '带日语口白的一首，锋利底下藏着近乎荒谬的柔软。它证明你的严肃从不排斥奇怪。' },
+      { name: 'Katrina (Demo)', tag: 'Demo', why: '以半成品形态收入专辑。他愿意让人听见还没修好的部分，这一点比成品更接近你。' }
+    ],
+    closing: '你没有义务一直醒着。把眼睛闭上休息一下，世界不会因此变得更假。'
+  },
+
+  /* ---------- 04 ---------- */
+  us2003: {
+    name: '回声勘探者',
+    en: 'The Wanderer',
+    tagline: '你对「已经完成的东西」兴趣有限，你着迷的是它还没对的那几秒钟。别人要答案，你要过程。',
+    traits: [
+      { t: '好奇心没有截止日期', d: '你会在一件跟自己无关的事上花掉整个周末，然后觉得物有所值。' },
+      { t: '喜欢半成品', d: '排练、草稿、demo、幕后——你觉得这些地方比成品更诚实。' },
+      { t: '路线可以改', d: '你不太把「我已经投入这么多」当成继续的理由。' },
+      { t: '知识是横向连起来的', d: '你学东西的方式是跳着来的，而你觉得连得上就行。' }
+    ],
+    strengths: [
+      '你能在没人觉得有价值的地方发现价值，这几乎是所有原创工作的起点。',
+      '你对陌生事物的接受速度很快，改道成本比别人低。',
+      '你的兴趣广，于是你的类比多——别人解决问题用工具，你用联想。'
+    ],
+    blindspots: [
+      '开始太多，收尾太少。你的文件夹里可能躺着三十个「差一点就成了」的东西。',
+      '你容易在探索里获得成就感，以至于探索本身替代了完成。',
+      '你给人一种「随时可以抽身」的印象，包括在人身上。'
+    ],
+    love: '你爱上的是「有趣」而不是「合适」，所以开始得很爽，维持需要额外努力。你最好的状态是找到一个同样对世界好奇的人——你们的关系靠共同探索维持，而不是靠承诺。',
+    people: '你朋友多、覆盖面广，但深交需要刻意。你对所有人都真诚，只是真诚的深度差不多，这会让少数几个想跟你深交的人有点失落。',
+    reality: '你不太信线性路径，也因此不太积累。短期内你视野最好，长期看，你需要选一件东西坚持到它不有趣为止——那之后的部分才是真正的收益。',
+    analysis: '这张放在八张里最容易被跳过，因为它是「精选」。但它真正特别的不是收了哪些歌，而是 Bonus Disc 那一整盘的半成品：《飞机场的10:30 (Original Demo)》《黑色柳丁 (Original Voice Recorder Ideas)》《沙滩 (A Cappella Demo Version)》《沙滩 (Guitar Version)》，以及 1993 年录的《爱很简单 (Original 1993 English Demo)》。把十年前自己不好的录音直接放进正式发行物，在 2003 年的华语主流唱片里是相当罕见的诚实动作。《飞机场的10:30》正式版四分钟左右，demo 版五分多钟——同一个旋律的骨架裸露出来，你能听见它原来长什么样、后来被砍掉了什么。那张 bonus disc 讲的不是「成果」，是「过程」，这正是它成为一张人格的原因。它同时收了《今天没回家》《我喜欢》《Runaway》等此前未发表的新作，说明这张唱片也不是纯粹的回顾。',
+    debate: '常见误解一：把它当成凑数的精选跳过。误解二：认为「精选」没有创作价值。它的价值恰恰在于把过程公开——愿意让人听见自己五年前的粗糙录音，需要的不是技术，是自我接受程度。',
+    songs: [
+      { name: '今天没回家', tag: '新作', why: '用一首「不回家」来讲一种持续的在外面。你的注意力永远在下一个路口。' },
+      { name: '飞机场的10:30 (Original Demo)', tag: 'Demo', why: '同一首歌的另一个版本。真正吸引你的不是它更好听，而是它让你听见「当时还没决定」。' },
+      { name: 'Runaway', tag: '非主打', why: '标题就是动作。这首歌几乎没有传唱度，但它是这张唱片的性格说明书。' },
+      { name: '我喜欢', tag: '非主打', why: 'demo 版与抒情版都被收入，等于同一首歌的两次草稿。你会把它当成一种方法论。' },
+      { name: '爱很简单 (1993 English Demo)', tag: '录音档案', why: '比正式版早了四年的英语草稿。听到它你会明白：所有成品都曾经只是一个还不好听的念头。' }
+    ],
+    closing: '你不必把所有路口都走完。但记得回头把其中一条走到底——风景在后半段。'
+  },
+
+  /* ---------- 05 ---------- */
+  tp2005: {
+    name: '有根的革新派',
+    en: 'Rooted Rebel',
+    tagline: '你要的不是砸掉旧东西，是把旧东西里还活着的那部分救出来，装进新的结构里继续用。',
+    traits: [
+      { t: '先懂规则再改规则', d: '你很少凭空反对，你要先知道它当初为什么成立。' },
+      { t: '结构感强', d: '你不只看单个元素好不好看，你看它在这个位置上是不是非它不可。' },
+      { t: '尊重来处', d: '你知道自己从哪来，也不会假装是凭空长出来的。' },
+      { t: '改动是有代价的自觉', d: '每一次「优化」你都会问：会不会把不该动的东西一起弄坏了。' }
+    ],
+    strengths: [
+      '你能同时获得老一辈和新一批的信任，这在任何组织里都是稀缺能力。',
+      '你的改动通常能落地，因为你在设计时就把执行成本算进去了。',
+      '你处理复杂关系的能力强，因为你习惯把「分歧」当成结构问题而不是人品问题。'
+    ],
+    blindspots: [
+      '你容易过度解释，也容易高估「讲清楚」的作用——有些冲突不是理解问题。',
+      '你对外来事物的第一反应常常是「它跟原来的有什么关系」，这会让你错过纯粹新鲜的东西。',
+      '你太在意得体，偶尔会把锋利的判断修饰到失去力量。'
+    ],
+    love: '你要的是能跟家里人同桌吃饭也能一起改造世界的那种关系。冲突出现时你会谈结构：我们哪里没对齐。问题是，亲密关系里有些不合是磨不掉的，而你不太接受「磨不掉」这件事。',
+    people: '你在人群里是连接者：既能跟老派人说话，也能跟上新节奏。代价是你常常在中间两头解释，累也没人知道。',
+    reality: '你能在现实里推进理想，这是别人做不到的。你的课题不是「做不成」，而是「做成之后，它是不是已经变成了你想要的那件事」。',
+    analysis: '这张专辑最值得听的不是《就是爱你》《爱我还是他》这些抒情主力，而是「咬合」的方式。《Susan说》把京剧《苏三起解》的唱段「苏三离了洪洞县」直接接进 R&B 拍子，中间还夹一段仿古念白——它不是把京剧当佐料撒上去，而是让两套咬字逻辑在同一句里争夺位置，那条裂缝被有意保留下来。《孙子兵法》与女子十二乐坊合作，把民族乐器插进西洋编制，同样是不抹平差异的做法。专辑以《鬼 (Overture)》开场、以《祈祷良辰歌》收尾，用宗教框架包住对时代风气的观察；中间《Catherine》看似情歌，实际是写给母亲的；《她的歌》副标 Song for Anita，献给梅艳芳。和声上《无缘》《爱我还是他》堆叠到近乎室内乐的密度，乐句短、留白多。宣传期他还提过「less is more」的做法：一首歌严格控制进入的乐器数量（此为当时宣传说法）。',
+    debate: '它拿到了第 17 届金曲奖最佳国语流行音乐演唱专辑，也拿到了华语音乐传媒大奖最佳录音；同时也有评论认为这张专辑想说的太多、主题偏重，个别曲目拆开来听水准落差明显。两种评价指向同一件事：这是一张把「文化身份」当成技术问题来处理的专辑，既不复古也不搬运，而这条路线的代价就是它不轻盈。',
+    songs: [
+      { name: 'Susan说', tag: '主打', why: '京剧唱段接进 R&B 拍子，中间那一段仿古念白是全曲的关键。真正的尊重是把旧的放进新的里让它继续说话。' },
+      { name: '孙子兵法', tag: '非主打', why: '与女子十二乐坊合作，民族乐器与鼓组的对撞。它证明「传统元素」不必被磨圆才好相处。' },
+      { name: '她的歌', tag: '非主打', why: '副标 Song for Anita，献给梅艳芳。你的革新从来不是要切断情感，恰恰是要把它留下。' },
+      { name: 'Catherine', tag: '遗珠', why: '听着像情歌，其实是写给母亲的。你身上最坚固的那部分，通常来自最私人的地方。' },
+      { name: '无缘', tag: '主打', why: '和声堆叠极厚，乐句却短。它演示了什么叫「控制住的表达」。' }
+    ],
+    closing: '记住：你保留传统的目的不是让它完好无损，是让它还能被今天的人唱出来。'
+  },
+
+  /* ---------- 06 ---------- */
+  be2006: {
+    name: '温柔的守夜人',
+    en: 'The Tender Keeper',
+    tagline: '你知道所有好东西都在变少，所以你把它记得特别仔细。别人称你为敏感，你自己清楚那是记账。',
+    traits: [
+      { t: '感受力先于分析力', d: '你先知道气氛不对，很久之后才找出原因。顺序反了，但结果通常没错。' },
+      { t: '对流逝敏感', d: '一个季节、一句话、一种口味的变化，你都会先一步难过。' },
+      { t: '温柔是有组织的', d: '你的照顾不是随机的情绪，是长期执行的安排。' },
+      { t: '愿意让场面好看', d: '你会在必要的时候退一步，哪怕你有理。' }
+    ],
+    strengths: [
+      '你记得别人的细节，这让被你照顾的人有一种「被看见」的实感，这是一种非常少见的能力。',
+      '你能降低任何关系的摩擦成本，很多人是因为你在，才留在原地。',
+      '你的审美通常稳定且不刺眼——东西放在你手上会变得耐看。'
+    ],
+    blindspots: [
+      '你为了避免冲突所付的成本，长期来看往往超过冲突本身的成本。',
+      '你把「没关系」说得太多，最后这句话会失掉信用，包括对你自己。',
+      '你容易被「已经投入的感情」困住，明知道该走，却算不清账。'
+    ],
+    love: '你爱的方式是照料：记住对方不吃什么、提前一步把事情安排好。你的问题不是爱得不够，是你常常不表达需求——等到对方没回应时，你已经积攒了一本没人读过的账。',
+    people: '你是关系里的稳定器，也常常<｜hy_place▁holder▁no▁813｜> 是那个替别人收拾场面的人。麻烦在于：你很少给别人机会照顾你，于是大家都以为你不需要被照顾。',
+    reality: '你把「过好日常」当成一件认真的事来做，这在实用层面非常有效。但你要小心：当你把所有精力都用于维护眼前的体面，真正重要的问题会被你无限期地往后排。',
+    analysis: '这张唱片的音响目标是「轻」：钢琴织体细，鼓组克制，和声轻铺，几乎没有失真音色。它最有代表性的是《忘不了》——英文名 Can’t Get You Outta My Mind，词曲署名保留了《不了情》的原作者陶秦与王福龄，它不是取样，而是一次结构改写：老抒情的旋律骨架保留，节奏被推到当代 R&B 的拍子上，于是产生了一种「不知道自己在哪个年代」的错位，这正是整张《太美丽》的主题。开场曲《太美丽广播电台》是一段电台串场，把整张专辑伪装成一次深夜广播节目（这是他继首张专辑之后又一次把唱片伪装成别的东西）。《今天你要嫁给我》原本写成独唱，后来改为与蔡依林对唱，Rap 部分模拟牧师司仪的口吻。专辑也包含数首广告性质曲目，这一点在当年讨论很多。',
+    debate: '这是八张里口碑最撕裂的一张。2006 年《新锐唱片评审团》的评语几乎一边倒：「不进反退，无功即过」「流水线上又一张普通产品」「精细得让人害怕」；也有乐评人持正面意见，认为它胜在情真意切，是听众真正需要的东西。陶喆本人的回应是：这是回归内心世界的一张，与批判社会无关；他还举了 Sting 的《Mercury Falling》——那张唱片他第一次听也觉得难听，两个月后才在某个瞬间被击中。这段距离值得被保留下来，而不是被后来的传唱度抹平。',
+    songs: [
+      { name: '忘不了', tag: '主打', why: '把《不了情》推进当代律动，制造时空错位。你的回忆不是档案，是随时会被触发的背景音。' },
+      { name: '自导自演的悲剧', tag: '非主打', why: '在回忆性的前奏里慢慢说话。它承认了一件事：很多痛苦是我们自己导演也给自己的。' },
+      { name: '似曾相识', tag: '非主打', why: '慢到几乎停住的一首，讲「明明没见过却觉得认识」。这是你最典型的感知方式。' },
+      { name: '那一瞬间', tag: '遗珠', why: '抒情主线，副歌处有时间凝固的处理。你之所以痛苦，是因为你记得住瞬间。' },
+      { name: 'Olia', tag: '非主打', why: '专辑最后一支较冷门的曲目。收在人声渐弱里，像一次没有结论的告别。' }
+    ],
+    closing: '你留住的从来不是那个人，是当时那句你还听得见的话。这也够了。'
+  },
+
+  /* ---------- 07 ---------- */
+  op2009: {
+    name: '不肯收山的人',
+    en: 'The Unretired',
+    tagline: '别人以为你在追寻第二春，你知道你只是想回到第一次拿起琴的那天——顺便把贴在自己身上的标签撕掉。',
+    traits: [
+      { t: '拒绝被定义', d: '别人越是用你过去的成绩介绍你，你越想把那张名片撕了。' },
+      { t: '行动先于把握', d: '你不等准备好。准备充分的项目通常让你失去兴趣。' },
+      { t: '锋芒是主动选择的', d: '不是不会圆，是算过之后仍然决定不圆。' },
+      { t: '对自己的过去不留情', d: '你否定自己最顺利的那段时期，因为它「太容易了」。' }
+    ],
+    strengths: [
+      '你敢在功成名就的时候推倒重来，这需要的安全感比想象中高得多。',
+      '你的行动力强，一件事在别人那里还在开会，你已经有了第一版。',
+      '你不怕得罪人，所以你在关键时刻能说出别人不敢说的那句。'
+    ],
+    blindspots: [
+      '你有时把「不听劝」当成「有主见」，两者的分界线在于你有没有真的听完。',
+      '你对效率低下的人缺乏耐心，也因此会砍掉一些其实有价值的慢流程。',
+      '你容易为了证明自己而做事，而「证明」这个动机做出来的东西常常力道过头。'
+    ],
+    love: '你不擅长暧昧和迂回，会直接给结论。你欣赏势均力敌的人，因为你受不了被照顾。麻烦在于：你会在关系稳定之后开始感到无聊，然后去找下一个战场。',
+    people: '你吸引追随者，也容易得罪同级。你对前辈的态度取决于他们是否还在创新——停在原地的人，你敬重但不再请教。',
+    reality: '你常常主动选择更难的路线，理由是「简单的那条不像我想要的生活」。这句话很振奋，也很贵：你为此付的代价通常不显示在账单上。',
+    analysis: '这是八张里最接近「一支乐队在房间里演奏」的唱片：吉他 riff、真鼓、贝斯线取代了此前占主导的编曲律动，人声处理也更硬。《Play》把共鸣点往下调，听感几乎不像过去的他。《愿主怜悯》(Kyrie Eleison) 放在第 1 轨，是一首没有他独唱的童声合唱，只有一分多钟——把它放在摇滚专辑开头，等于先把过去清空再开始。关于「69」的说法是多重的：他的出生年份 1969、第 6 张专辑第 9 张音乐作品，宣传中也提到日文中与摇滚发音相近、易经里阴阳翻转等解读。《关于陶喆》是一首自述式作品，嵌入了他早期为 L.A. Boyz 写的《金斯顿的梦想》，也回应了当时的「一哥之争」等话题，和音里藏了一句「你又不是王力宏」。《暗恋》则先有他自编自导自演的短片《暗恋映像》（杨谨华主演），影像先行再回头做音乐。',
+    debate: '这是他本人的最爱，但不是公认的最佳——这个落差本身就是这张专辑的注脚。网易音乐评审团的打分普遍在 6.5 上下，肯定与疑虑混在一起：有人认为他够勇敢、玩雷鬼放克华丽摇滚都有模有样；也有人直言它是「初级的摇滚模仿」，指出《关于陶喆》后半段的桥段有 Queen 的痕迹，14 首曲目的总长度也是一种负担。陶喆此后多次公开说这是他最喜欢的一张作品。两种说法可以同时成立：它在转型意义上重要，在结果上并不完美。',
+    songs: [
+      { name: '愿主怜悯', tag: '开场曲', why: '一分多钟的童声合唱，没有他的独唱。它演示了你的底层逻辑：想要开新的，先把自己清空。' },
+      { name: '乱七∞糟', tag: '非主打', why: '副歌引入合唱团声场，被形容为「既神圣又诡谲」。它比《黑色柳丁》更彻底地承认失控。' },
+      { name: '关于陶喆', tag: '自述', why: '回答外界提问的一首，和音里藏着「你又不是王力宏」。你的锋芒底下其实是一句「我想被当成现在的我」。' },
+      { name: '请继续，任性', tag: '非主打', why: '短、直接，标题就是你的行为准则。它不是鼓励，是默许。' },
+      { name: '火鸟功', tag: '非主打', why: '天马行空的一首。你在别人期待你成熟的时候，拼命想保留那个荒唐的自己。' }
+    ],
+    closing: '你怕的从来不是输，是在赢过之后，发现自己一直在打别人的比赛。'
+  },
+
+  /* ---------- 08 ---------- */
+  hg2013: {
+    name: '认真告别的人',
+    en: 'The Fareweller',
+    tagline: '你知道很多关系没有一个正式的结尾，而你一直想把那一句说完——哪怕对方已经不打算听。',
+    traits: [
+      { t: '要给一件事收尾', d: '悬而未决会消耗你，你宁愿有一个难看的结局。' },
+      { t: '回望但不滞留', d: '你常常回头看，但那是为了确认自己走到了哪里。' },
+      { t: '允许遗憾存在', d: '你不再试图把过去修好，这让你比从前松一点。' },
+      { t: '温柔里带着距离', d: '你对人好，但不再预设这段关系会永远。' }
+    ],
+    strengths: [
+      '你能在别人慌张地切割关系时，保持体面地把话说完——这是一种罕见的成熟。',
+      '你的稳定感很强，因为你见过变化，知道它大概长什么样。',
+      '你记得住人。很多旧关系后来之所以还能重启，靠的就是你当初没有摔门。'
+    ],
+    blindspots: [
+      '你太执着于「好好告别」，有时候把一个已经结束的东西强行留在手术室里。',
+      '你习惯替别人想结局，于是常常代替别人做了决定。',
+      '你的温和有时会滑向回避——不告别也是一种逃避，只不过比较好看。'
+    ],
+    love: '你对待感情的方式是「尽量不留悬案」。你会问清楚、说清楚，也接受对方给不了答案。危险的是：你的温柔有时候会让你在明显该离开的时候，还在替对方解释。',
+    people: '你是朋友圈里的存档机构：别人断掉的联系，你多半还留着联系方式。这不等于你想复合，只是你不愿意让它变成一件没发生过的事。',
+    reality: '你对「急着抵达」这件事已经没什么兴趣了。你要的是做完之后还能回头看那种踏实。副作用是：你会比别人晚一步开始新东西，因为你得先跟旧的结算。',
+    analysis: '这张专辑最重要的音乐决定不是某一首歌，而是「用哪种吉他」：整张以尼龙弦吉他为骨干，音色比想象中软、也旧，却按非常当代的编曲逻辑排列，还加入了电子合成器与竖琴等他称为「被遗忘已久的音色」。把旧音色放进新结构这件事，和专辑主题完全同构——不为复古，而是让过去的东西有机会被重新认识。第二个决定是「对话」：全专近一半是对唱，与卢广仲《逗阵兄弟》《那个女孩》、与蔡健雅《真爱等一下》、与关诗敏《好好说再见》《All For Joy》。《那个女孩》最典型——两个男生各说各话，最后才发现说的是同一个人，声部互相接话、抢话又合拢，几乎是一幕微型情景剧。《勿忘我》用了约德尔（Yodel）真假音急速交替，服务于「呼唤—回应」的意象：像在山谷里喊一个人，回来的是回声。作词阵容也首次换了血，林夕写《The Promise》，武雄写《上爱唱的歌》——后者是他首次新写台语歌，向父亲致意（曲目名在资料中另有《最爱唱的歌》一说，以专辑内页为准）。',
+    debate: '评价相对温和，但两派分明：一派认为这是中年之后的自然回落，诚实、实在，靠的是「稳」；另一派直言它不够狠、即兴少了、创作力下滑。还有一点常被忽略——这张专辑几乎在结构上就是一次对话练习，它本来就不打算一个人唱完，因此用「个人突破」的标准去衡量它会错位。',
+    songs: [
+      { name: '勿忘我', tag: '主打', why: '约德尔唱法的真假音急速交替。它不是炫技，是在山谷里喊一个人时那种声音。' },
+      { name: '那个女孩', tag: '对唱', why: '两个男生各说各话，最后发现说的是同一个人。你的所有告别几乎都长这样：误会来自信息差，而不是恶意。' },
+      { name: '上爱唱的歌', tag: '非主打', why: '由武雄作词的台语歌，写给父亲。这是整张专辑真正的核心：所有告别里最难的那一件。' },
+      { name: 'The Promise', tag: '非主打', why: '首次与林夕合作。承诺之所以被写下来，是因为它有可能不被履行。' },
+      { name: '好好说再见', tag: '对唱', why: '标题就是你的人生条款。能解作分手后的隔空对话，也能解作过来人对还在痛的人说的话。' }
+    ],
+    closing: '你把每一句再见都说完了。所以后来你才能既不后悔地回头，也不回头地往前走。'
+  }
+};
+
+
+/* ===== content/deep-analysis.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * content/deep-analysis.js —— 40 首推荐曲目的深度解读（内容层·第四层）
+ *
+ * 对应参考站的 songDeepAnalysis：结果页点「📖 深度解读」弹出这一层。
+ *
+ * 编写原则：
+ *   1. 必须落到具体可听的内容——编制、节奏、曲式、唱腔、歌词写法。
+ *   2. 不写「很好听」「很感人」这类没有信息量的判断。
+ *   3. 涉及评价时区分事实与解读：事实写「收录于…」，解读写「可以理解为…」。
+ *   4. 不引用未经确认的访谈原话，不编造制作细节。
+ *   5. key 必须与 personalities.js 里 songs[].name 完全一致，否则弹窗显示「暂无解读」。
+ *      tools/check.js 会强制校验这一点。
+ * ============================================================= */
+
+window.DT_DEEP = {
+
+  /* ==================== 01 David Tao / 1997 ==================== */
+  '飞机场的10:30':
+    '全专第 1 轨，班机起飞的音效先于任何一个音符出现——它不是前奏，是场景。中板 R&B，电钢琴铺底、干净的电吉他清音打点，鼓组收得很紧。' +
+    '歌词停在「凌晨前后」这个时间：一个人还没决定要不要走，但飞机已经在动了。把这种「还在犹豫就已经起飞」的状态放在第一首，' +
+    '等于给整张专辑定了调——它不打算讲一个想清楚了的故事。对应你的地方就在这里：你的人生多半也是这样开始的。',
+
+  '王八蛋':
+    '非主打，却是最能说明这张专辑不只有柔的一首。摇滚 funk 的节奏，贝斯线推着走，唱腔是硬邦邦的中低音区，几乎不带转音。' +
+    '它把厌恶说得很难听、很完整，一句修饰都没有。值得放在一起听的是同专辑第 7 轨《望春风》——同一张唱片里，' +
+    '他既能这样骂，也能把一首 1930 年代的台语老歌用纯人声 a cappella 重编。直和柔是同一个人，不是两个人。',
+
+  '是是非非':
+    '非主打，带说唱结构。它的意思不在押韵，在「反复」——是、非、是、非，一句接一句地抽打，越说越不确定。' +
+    '口语化的节奏把中文的顿挫切得很碎，听感接近一个人在脑子里跟自己吵架，而不是在舞台上表演愤怒。' +
+    '它不像那些把立场喊清楚的歌，它更像你还没想通时的那段内心独白。',
+
+  '十七岁':
+    '非主打，旋律走的是五声音阶的中国风线条，但底下的节奏仍然是 R&B——不是把民乐当装饰挂上去，' +
+    '而是让两种语言在同一句里共存。写的是少年时期的回头看，语气克制，没有怀旧的甜腻。' +
+    '在《王八蛋》的怒气和《沙滩》的温柔之间，它充当了一个过渡：同一个人的第三种表情。',
+
+  '心乱飞':
+    '容易被跳过的遗珠。它的价值在于「不解决」——整首歌没有给出任何一个结论，情绪从头到尾悬着。' +
+    '编曲上的留白比主打曲更多，人声的转音密度也刻意压低了，听起来像一个人还没把话组织好就开始说了。' +
+    '如果你习惯在事情还没想清楚时就先开口，这首歌会很像你某一段时期的背景音。',
+
+
+  /* ==================== 02 I\'m OK / 1999 ==================== */
+  "I'm OK":
+    '同名曲，也是他第一次把 Hard Rock 编制完整放进自己的专辑：失真吉他、更重的鼓，同时混入国乐与电子音色。' +
+    '标题是反的——一个人需要反复声明「我没事」的时候，恰恰是最有事的时候。这首歌把第二张专辑的核心矛盾直接摆在名字里：' +
+    '外壳越硬，里面越乱。它和第一张那种安静的感染力完全不同，是同一个人十年里变化最快的一段。',
+
+  '多谢你':
+    '非主打。「谢谢」在这首歌里不是客套，是散场时的那句话——语气很轻，收得很干净，没有撕扯。' +
+    '它处理的是一种很具体的关系状态：不是不爱了，是承认彼此只能走到这里。' +
+    '在整张情绪跨度极大的专辑里，它属于少数「不挣扎」的时刻，也因此容易被忽略。',
+
+  '马戏团':
+    '非主打，Ska 节奏——那种跳跃、带一点滑稽感的切分。用它来比喻成人世界的荒诞再合适不过：' +
+    '锣鼓喧天，每个人都扮着自己。第二张专辑的「杂食」在这首歌上体现得最明显，' +
+    '它和第 12 轨《Angeline》的 80 年代 New Wave、第 4 轨《夜来香》的纯人声 a cappella 完全不是一路东西，' +
+    '却在同一张唱片里相安无事。有人叫它丰富，有人叫它散，两种说法都在说同一件事。',
+
+  '说走就走':
+    '非主打。标题听起来潇洒，歌里处理得却并不轻松——它写的是「走」这个动作背后的迟疑与代价。' +
+    '节奏干脆，但人声的语气留了余地。这正好对应那类人：做的决定看起来很果断，' +
+    '其实是因为他们知道，再想下去就走不了了。',
+
+  '夜来香':
+    '翻唱黎锦光 1940 年代的老歌，整首完全以 a cappella 完成——所有人声都是乐器，没有一件真乐器。' +
+    '这种做法在 1999 年的华语主流专辑里非常少见，而且它延续的是首张专辑《望春风》的思路：' +
+    '把老的中文曲调重新放进当代的节奏语言里。区别在于，《望春风》是重编，《夜来香》干脆把所有伴奏都拿掉了，' +
+    '只剩下人。',
+
+
+  /* ==================== 03 黑色柳丁 / 2002 ==================== */
+  '黑色柳丁':
+    '同名曲，专辑里最硬的一轨：失真吉他、厚底鼓、更靠近喊的唱腔。它承接第 2 轨《今天晚间新闻》那段新闻剪辑——' +
+    '先听完现实的声音，愤怒才有出处。这是他从 R&B 转向摇滚最激进的一张里的主轴，' +
+    '但要注意它并不是整张专辑的全部：《摇篮曲》《Melody》《二十二》仍然把 R&B 柔软的那一面摊开着。' +
+    '一硬一软并置，才是这张唱片的真实结构。',
+
+  '今天晚间新闻':
+    '第 2 轨，严格说不是一首歌，是剪辑起来的新闻片段，被放在专辑最前面当「序」。' +
+    '这个安排决定了后面所有歌的听法：那些愤怒不是凭空来的，是有画面的。' +
+    '它也是整张专辑最有概念企图的证据——这是一张被设计过情绪曲线的唱片，不是十首单曲的集合。',
+
+  '摇篮曲':
+    '非主打，全专最后一轨。从社会议题的愤怒，退回到一个人睡前的低语——这个收束是刻意的，' +
+    '而且比它看起来更重要。它说明这张专辑批判的背面一直藏着疲惫：一个人可以对世界很生气，' +
+    '但晚上还是要睡觉。把它当成整张专辑真正的结尾来听，你会得到完全不同的结论。',
+
+  'My Anata':
+    '非主打，重型编制的一轨。「Anata」是日文「你」的读音——用一个外来词当情歌的称呼，' +
+    '本身就带着一点玩世不恭。它在专辑里的作用是提醒听众：这张唱片里的人不是只会愤怒，' +
+    '他也会用奇怪的方式谈情。和《Katrina》放在一起听，你会发现他的私人情绪其实一直没断过。',
+
+  'Katrina (Demo)':
+    '以 demo 形态正式收录，而不是重录成完整版本。在华语主流专辑里，把半成品放进去是很少见的自我暴露——' +
+    '它等于承认「我也有没做完的东西」。这份「未完成」的质感，后来在《乐之路》的 bonus disc 上被放大成了整张唱片的概念。' +
+    '如果你想理解他为什么愿意公开过程，从这一首开始最合适。',
+
+
+  /* ==================== 04 Ultrasound 乐之路 / 2003 ==================== */
+  '今天没回家':
+    '这张精选辑里的新作之一，后来成了他新阶段的代表作，并登上 Hit Fm 年度百首单曲 2003 年第 6 位。' +
+    '它的重要性在于：一张回顾性质的唱片，靠一首新歌把自己接上了下一段路。' +
+    '这说明「精选」在这里不是终点，而是一次中转。',
+
+  '飞机场的10:30 (Original Demo)':
+    'Bonus disc 上的原始 demo，长达五分多钟，与正式版的差别被完整地摊开：编曲还没长出来，' +
+    '但旋律的骨架和当时的声音状态已经在了。把它和 1997 年的正式版连着听，是这张专辑最核心的体验——' +
+    '你听得见一首歌「原来长什么样」，也听得见它后来放弃了什么。',
+
+  'Runaway':
+    '此前未发表的作品，收录在这张精选里。编曲密度不如正式专辑，有一种「未完成时」的松弛。' +
+    '它的价值不在完成度，而在它证明了一件事：那些没被放进正式专辑的东西，未必是因为不够好，' +
+    '可能只是当时没有位置。',
+
+  '我喜欢':
+    '新作之一。旋律直接、编曲干净，延续了他对 R&B 节奏的掌握，但整体气质比正式专辑轻。' +
+    '放在一张以「过程」为主题的唱片里，它像一个还没被打磨成主打的念头——而这张专辑恰恰认为这种念头值得被听见。',
+
+  '爱很简单 (1993 English Demo)':
+    '1993 年写的英语 demo，直接收进 2003 年的正式发行物。这是整张专辑最诚实的一个动作：' +
+    '把十年前那个还没成型的自己公开出来。它后来变成了《爱，很简单》——华语流行里被唱得最多的歌之一。' +
+    '听这个版本，你会知道它最初不是一首情歌，只是一个人随手记下的旋律。',
+
+
+  /* ==================== 05 太平盛世 / 2005 ==================== */
+  'Susan说':
+    '把京剧《苏三起解》的唱段「苏三离了洪洞县」接进 R&B 拍子里，中间还夹了一段仿古念白。' +
+    '关键在于它做的是「咬合」不是「融合」——京剧的咬字逻辑和 R&B 的切分在同一句里争位置，' +
+    '那段念白把两条时间轴的裂缝直接暴露出来。它没有把差异抹平，而是让差异发声。' +
+    '这是八张专辑里，文化身份被处理得最像技术问题的一次。',
+
+  '孙子兵法':
+    '与女子十二乐坊合作，把民族乐器插进西洋编制。古筝类乐器与鼓组的对撞延续了《Susan说》的思路——' +
+    '不掩盖冲突，让两个系统互相摩擦。它讨论的是谋略与胜负，但音乐上的重点在于：' +
+    '它让传统乐器做了它本来不常做的事。',
+
+  '她的歌':
+    '副标题 Song for Anita，献给梅艳芳。在整张以时代观察为框架的专辑里，它是一次明确的私人致意。' +
+    '也提醒听众：这张被认为「主题偏重」的专辑，其实一直有私人的线在走。',
+
+  'Catherine':
+    '遗珠。歌名看似情歌，实际是写给母亲的——这个错位本身就是这首歌的内容。' +
+    '如果你习惯用不在意的方式说最在意的事，它会很像你。',
+
+  '无缘':
+    '主打之一，和声堆叠到近乎室内乐的程度：乐句短、留白多，讯息密度反而上升了。' +
+    '它代表的是这条脉络里「结构感」的一面——不是情绪的堆叠，而是把情绪收进一个精确的容器里。',
+
+
+  /* ==================== 06 太美丽 / 2006 ==================== */
+  '忘不了':
+    '英文名 Can’t Get You Outta My Mind，词曲署名保留了《不了情》的原作者陶秦与王福龄。' +
+    '注意：这不是取样，而是一次结构上的改写——老抒情的旋律骨架保留，节奏被推进当代 R&B 的拍子里，' +
+    '于是你分不清自己站在哪个年代。这种时空错位正是这张专辑最想做的事，也是它技艺最硬的一处证明。',
+
+  '自导自演的悲剧':
+    '非主打，走钢琴抒情路线。标题已经把机制说完了：悲剧是自己写、自己导、自己演的。' +
+    '它的锋利在于指出「沉溺」是有主动性的——不是被情绪困住，是你在维持它。',
+
+  '似曾相识':
+    '非主打。它处理的不是某一段具体的回忆，而是那种「好像发生过」的模糊感——' +
+    '你认得出那个轮廓，却说不出是哪一天。编曲克制，人声贴得很近，几乎没有混响撑开的空间，' +
+    '听感像有人在你耳边说话，而不是在舞台上唱。这正好对应这张专辑最核心的能力：' +
+    '它不擅长告诉你失去了什么，它擅长复现「记不清楚」这件事本身。',
+
+  '那一瞬间':
+    '遗珠。整首歌围绕一个极短的时间单位展开——它关心的是「留不住的东西值不值得记」。' +
+    '对感受力强的人来说，这种歌比大起大落的抒情更准。',
+
+  'Olia':
+    '非主打。温柔、轻，几乎不设置听觉阻力。' +
+    '它的问题也是它的优点：太顺了，顺到容易被当成背景。想听懂它需要单独、认真地听一遍。',
+
+
+  /* ==================== 07 69乐章 / 2009 ==================== */
+  '愿主怜悯':
+    '全专第 1 轨，只有一分多钟的童声合唱（Kyrie Eleison），里面没有他自己的独唱。' +
+    '把它放在一张摇滚专辑的开头是一个姿态：先把自己清空，再开始。' +
+    '这张专辑主张抛弃「R&B 教父」的封号、改以 Band Sound 做摇滚——这个开场就是那次「烧掉标签」的仪式。',
+
+  '乱七∞糟':
+    '非主打，副歌引入合唱团的声场，听感被形容为「既神圣又诡谲」。' +
+    '它代表这张专辑最敢的部分——不是「做得像不像摇滚」，而是愿意把不协调的东西并置在一起，不解释。',
+
+  '关于陶喆':
+    '自述式作品。里面嵌了他早期为 L.A. Boyz 写的《金斯顿的梦想》，也回应了当时的「一哥之争」等话题；' +
+    '和音里还藏了一句「你又不是王力宏」。这是八张专辑里最像「公开日记」的一首——' +
+    '他把自己被贴过的标签、被比较过的处境，直接写进了歌里。',
+
+  '请继续，任性':
+    '非主打。标题本身就是一句许可——说给那些被劝「成熟一点」的人听的。' +
+    '它也几乎是这张专辑的立场声明：既然决定不妥协，就别装作在商量。',
+
+  '火鸟功':
+    '非主打，也是全专玩心最重的一首——把功夫片里的招式名直接拿来当情感动作使：发功、接招、受伤、爬起来。' +
+    '在 Band Sound 的硬底子上，它保留了接近口语的节奏和一句一停的断句，严肃不起来。' +
+    '它的存在很有必要：这张专辑通常被讨论得过于郑重（撕标签、做摇滚、自我证明），而这一首提醒听众，' +
+    '做这张唱片的人本来就有很重的玩心——不妥协不代表绷着脸。',
+
+
+  /* ==================== 08 再见你好吗 / 2013 ==================== */
+  '勿忘我':
+    '主打之一，用了约德尔（Yodel）唱法做真假音的急速交替——这在他的作品里是很少见的技术选择。' +
+    '但它不是炫技：约德尔的逻辑是「呼唤—回应」，像在山谷里喊一个人，回来的只有回声。' +
+    '技术在这里完全服务于「告别」这个主题。',
+
+  '那个女孩':
+    '与卢广仲的对唱。两个声部不是一人一段地轮唱，而是互相接话、抢话，最后再合拢——' +
+    '整首歌像一次真正的对话练习。这张专辑近一半是对唱，而这一首把「对话」做得最完整。',
+
+  '上爱唱的歌':
+    '非主打，也是他首次新写台语歌，由武雄作词，向父亲致意。' +
+    '（曲目名在部分资料中亦作《最爱唱的歌》，差异以专辑内页为准。）' +
+    '放在一张以「再见」为主题的专辑里，它处理的是最难的那一种告别——不是分手，是来不及。',
+
+  'The Promise':
+    '非主打，林夕作词——这是他首次与林夕合作。' +
+    '整张专辑最重要的音乐决定是「吉他的种类」：以尼龙弦吉他为骨干，音色比想象中更软、更旧，' +
+    '却按非常当代的编曲逻辑排列。把旧音色放进新结构，与「重新认识过去」这个主题是同构的。',
+
+  '好好说再见':
+    '与关诗敏的对唱，也是专辑标题的出处。它没有把告别写成崩溃，而是写成一件需要认真完成的事。' +
+    '听完这一首再回头看整张专辑，你会发现前面的回望、遗憾、接纳，最后都汇向这个动作：好好说再见。'
+};
+
+
+/* ===== content/blindbox.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * content/blindbox.js —— 每种人格一枚「单曲惊喜」彩蛋（内容层·第五层）
+ *
+ * 对应参考站的 blindBoxMap：结果页底部随机出现的隐藏入口。
+ *
+ * 编写原则：
+ *   1. 每格只给一首歌，且必须是该专辑里【不在结果页推荐列表】中的遗珠。
+ *      这样彩蛋才有「多给你一首」的价值，而不是重复。
+ *      tools/check.js 会校验：彩蛋曲目不得与推荐曲目重名。
+ *   2. desc 写「这首歌是什么」，note 写「什么时候听它」——两者不重复。
+ *   3. lyric 只在有确切把握时填写，否则留空字符串 ''，界面会自动隐藏该行。
+ *      绝不凭印象写歌词。
+ * ============================================================= */
+
+window.DT_BLIND = {
+
+  /* ---------- 01 ---------- */
+  dt1997: {
+    tag: '单曲惊喜',
+    title: '《流沙》',
+    from: 'David Tao · 1997',
+    desc: '全专最轻的一轨之一：钢琴与衬底几乎没有重量，人声贴得很近，转音压到最低。它写的不是失去，而是「越用力越失去」——手握得越紧，沙漏得越快。',
+    note: '适合你在一段关系里反复确认、却怎么都抓不住的时候听。它不提供解法，但把那个手感说准了。',
+    persona: '给还没学会轻拿轻放的人',
+    lyric: ''
+  },
+
+  /* ---------- 02 ---------- */
+  ok1999: {
+    tag: '单曲惊喜',
+    title: '《Doxology》',
+    from: "I'm OK · 1999",
+    desc: '全专第 1 轨，只有几十秒，是一段传统圣咏（Doxology）。它和最后一轨《Amen》恰好是一头一尾的呼应——外壳是宗教的，里面装的东西却一点都不宗教。',
+    note: '它短到极易被跳过，但跳过它，你对这张专辑的理解会少一层：整张唱片是被设计成一次「礼拜」的。愤怒、自嘲、柔软各有其位。',
+    persona: '给一边撑着一边笑的人',
+    lyric: ''
+  },
+
+  /* ---------- 03 ---------- */
+  bt2002: {
+    tag: '单曲惊喜',
+    title: '《二十二》',
+    from: '黑色柳丁 · 2002',
+    desc: '中板，旋律朴素到近乎白描：一个刚满二十二、刚毕业的女孩，站在什么都还没开始的门槛上。在这张最重的专辑里，它挑了一个最轻的切口。',
+    note: '把它和《黑色柳丁》连着听——你会发现愤怒的背面不是冷漠，是替还没入场的人担心。',
+    persona: '给不肯移开视线的人',
+    lyric: '她今年农历三月六号，刚满二十二'
+  },
+
+  /* ---------- 04 ---------- */
+  us2003: {
+    tag: '单曲惊喜',
+    title: '《寂寞的季节》',
+    from: 'Ultrasound 乐之路 · 2003',
+    desc: '这张精选里的新作之一。编曲干净，旋律线条拉得长，情绪往下沉而不爆发。它后来成了这一阶段的代表曲目之一。',
+    note: '这张精选常被当作「凑数」跳过，但《寂寞的季节》证明它不是仓库，而是一座有新材料的中转站。',
+    persona: '给还在路上、没打算停的人',
+    lyric: ''
+  },
+
+  /* ---------- 05 ---------- */
+  tp2005: {
+    tag: '单曲惊喜',
+    title: '《Sula 与 Lampa 的寓言》',
+    from: '太平盛世 · 2005',
+    desc: '全专最实验的一轨：用两个虚构的名字编了一则寓言。民族乐器与西洋编制的碰撞在这里不是点缀，而是叙事本身的一部分。',
+    note: '想分辨自己喜欢的是「融合」还是「咬合」，听这一首就够了——它没有把两种语言磨平。',
+    persona: '给想改造传统、但不想丢掉根的人',
+    lyric: ''
+  },
+
+  /* ---------- 06 ---------- */
+  be2006: {
+    tag: '单曲惊喜',
+    title: '《追》',
+    from: '太美丽 · 2006',
+    desc: '保留了节奏上的实验，不是标准抒情。它证明这张被认为「太顺」的专辑里，依然存在需要翻越的地方。',
+    note: '如果有人跟你说《太美丽》整张都是流水线情歌，把这一首放给他听。',
+    persona: '给感受力强、但被说成太敏感的人',
+    lyric: ''
+  },
+
+  /* ---------- 07 ---------- */
+  op2009: {
+    tag: '单曲惊喜',
+    title: '《雪豹》',
+    from: '69乐章 · 2009',
+    desc: '全专气质最怪的一轨之一，标题与写法都不走常规情歌曲路。Band Sound 编制下的留白比主打曲更多。',
+    note: '这是他「把自己的标签烧掉」之后才可能出现的东西——之前的专辑里没有这种空。',
+    persona: '给不打算收山的人',
+    lyric: ''
+  },
+
+  /* ---------- 08 ---------- */
+  hg2013: {
+    tag: '单曲惊喜',
+    title: '《因为爱》',
+    from: '再见你好吗 · 2013',
+    desc: '旋律直给，编曲以尼龙弦吉他为骨干，是「旧音色、新结构」这一思路的典型样本。',
+    note: '整张专辑都在练习告别，这一首是少数把「留下来的那部分」说清楚的作品。',
+    persona: '给认真告别的人',
+    lyric: ''
+  }
+};
+
+
+/* ===== content/questions.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * content/questions.js —— 20 道测试题（内容层）
+ *
+ * 编写原则：
+ *   1. 每题围绕一个生活 / 情绪 / 价值观情境，不出现「你最喜欢哪张专辑」这类直问。
+ *   2. 四个选项没有好坏之分——任何一项都可能是某种人格的最优解。
+ *   3. p = 主要人格（该选项的核心归属），s = 次要人格（副归属，权重更低）。
+ *      两者都必须来自八张专辑的 id：dt1997 / ok1999 / bt2002 / us2003 / tp2005 / be2006 / op2009 / hg2013
+ *   4. weight = 题目权重。核心题（价值观、冲突、失去）权重更高，偏好题权重更低。
+ *      改权重会改变结果分布，改完请务必跑一次 tools/check.js。
+ *   5. 不要改变 p/s 字段的总量平衡：理想状态下每个 id 作为 p 出现的次数接近 10 次。
+ * ============================================================= */
+
+window.DT_QUESTIONS = [
+
+  /* ---------- 维度一：音乐审美与艺术偏好 ---------- */
+  {
+    no: 1, dim: '音乐审美', weight: 1.0,
+    text: '拿到一张全新的专辑，你通常会怎么听它？',
+    options: [
+      { label: '顺着曲目顺序听下去，顺序本身就是作者的安排', p: 'us2003', s: 'tp2005' },
+      { label: '随手乱序播放，身体说停就停', p: 'dt1997', s: 'op2009' },
+      { label: '先把歌词读完，词站不住旋律再好听也放下', p: 'bt2002', s: 'tp2005' },
+      { label: '挑一首反复循环，直到把它听出毛边为止', p: 'be2006', s: 'hg2013' }
+    ]
+  },
+  {
+    no: 2, dim: '音乐审美', weight: 1.2,
+    text: '一首歌真正打动你的，通常是哪一处？',
+    options: [
+      { label: '旋律第一次出现时那种说不清的准', p: 'dt1997', s: 'be2006' },
+      { label: '歌词里那句别人不太敢明说的真话', p: 'bt2002', s: 'op2009' },
+      { label: '中间忽然变了样的那几秒：转调、破音、彻底失控', p: 'op2009', s: 'ok1999' },
+      { label: '每种乐器各自在做什么，它们怎么被摆在一起', p: 'tp2005', s: 'us2003' }
+    ]
+  },
+  {
+    no: 3, dim: '音乐审美', weight: 0.9,
+    text: '有人推荐了一张你完全不熟的唱片，你会？',
+    options: [
+      { label: '立刻找来从头听，先不管别人说它好不好', p: 'us2003', s: 'op2009' },
+      { label: '先查清楚它属于哪条脉络，再决定从哪首进门', p: 'tp2005', s: 'bt2002' },
+      { label: '先听最有名的那首，不对味就到此为止', p: 'ok1999', s: 'dt1997' },
+      { label: '先放着，等哪天心情撞上了再拿出来', p: 'hg2013', s: 'be2006' }
+    ]
+  },
+
+  /* ---------- 维度二：面对冲突时的反应 ---------- */
+  {
+    no: 4, dim: '冲突反应', weight: 1.2,
+    text: '被人当众误解的时候，你的第一反应更接近？',
+    options: [
+      { label: '当场说清楚，气氛难看也认了', p: 'op2009', s: 'dt1997' },
+      { label: '先笑一下，把场面圆过去再说', p: 'ok1999', s: 'be2006' },
+      { label: '忍住不解释，但会在心里记很久', p: 'hg2013', s: 'bt2002' },
+      { label: '拆解对方为什么会得出这个结论', p: 'bt2002', s: 'tp2005' }
+    ]
+  },
+  {
+    no: 5, dim: '冲突反应', weight: 1.0,
+    text: '必须和一个你根本不认同的人合作，你会？',
+    options: [
+      { label: '把分歧摊开讲，讲不通就各做各的', p: 'op2009', s: 'dt1997' },
+      { label: '先找出能合作的部分，把事情做完再说', p: 'tp2005', s: 'us2003' },
+      { label: '观察他，当作一次人类行为样本', p: 'bt2002', s: 'ok1999' },
+      { label: '礼貌地保持距离，彼此都不打扰', p: 'be2006', s: 'hg2013' }
+    ]
+  },
+
+  /* ---------- 维度三：对亲密关系的理解 ---------- */
+  {
+    no: 6, dim: '亲密关系', weight: 1.1,
+    text: '在关系里，你最容易做出来的那件事是？',
+    options: [
+      { label: '先开口，喜欢就说清楚', p: 'dt1997', s: 'bt2002' },
+      { label: '用玩笑把真话说出来，再用玩笑把它藏回去', p: 'ok1999', s: 'be2006' },
+      { label: '不声不响地把对方需要的东西安排好', p: 'be2006', s: 'tp2005' },
+      { label: '反复确认我们之间有没有在装', p: 'bt2002', s: 'hg2013' }
+    ]
+  },
+  {
+    no: 7, dim: '亲密关系', weight: 1.1,
+    text: '当对方开始后撤，你多半会？',
+    options: [
+      { label: '追上去问清楚，不留悬案', p: 'op2009', s: 'dt1997' },
+      { label: '体面地松手，别把场面做难看', p: 'hg2013', s: 'be2006' },
+      { label: '装作没事，心里其实在记账', p: 'ok1999', s: 'bt2002' },
+      { label: '复盘整段关系是从哪一步开始不对的', p: 'bt2002', s: 'tp2005' }
+    ]
+  },
+  {
+    no: 8, dim: '亲密关系', weight: 1.0,
+    text: '你觉得一段能撑很久的关系，靠的是？',
+    options: [
+      { label: '彼此都不用装', p: 'dt1997', s: 'bt2002' },
+      { label: '能一起笑，尤其是笑自己', p: 'ok1999', s: 'dt1997' },
+      { label: '能一起往前走，一起变', p: 'us2003', s: 'op2009' },
+      { label: '能一起记得那些事情', p: 'hg2013', s: 'be2006' }
+    ]
+  },
+
+  /* ---------- 维度四：对自由与规则的态度 ---------- */
+  {
+    no: 9, dim: '自由与规则', weight: 1.2,
+    text: '遇到一条你觉得完全不合理的规则，你会？',
+    options: [
+      { label: '先照做，然后在里面找能被改掉的缝隙', p: 'tp2005', s: 'us2003' },
+      { label: '不做，代价自己承担', p: 'op2009', s: 'bt2002' },
+      { label: '绕过去，反正规则很少真的看得到你', p: 'us2003', s: 'dt1997' },
+      { label: '嘴上不服，最后还是照做', p: 'be2006', s: 'ok1999' }
+    ]
+  },
+  {
+    no: 10, dim: '自由与规则', weight: 0.9,
+    text: '你理想中的一天长什么样？',
+    options: [
+      { label: '没有计划，走到哪算哪', p: 'dt1997', s: 'us2003' },
+      { label: '有骨架，但留出空白给意外', p: 'tp2005', s: 'be2006' },
+      { label: '做一件以前没做过的事', p: 'us2003', s: 'op2009' },
+      { label: '什么都不做，但做得很彻底', p: 'hg2013', s: 'be2006' }
+    ]
+  },
+  {
+    no: 11, dim: '自由与规则', weight: 1.1,
+    text: '如果必须牺牲一部分自由去换稳定，你会？',
+    options: [
+      { label: '看划不划算，谈条件', p: 'tp2005', s: 'bt2002' },
+      { label: '不换，稳定本来就不是我要的东西', p: 'op2009', s: 'us2003' },
+      { label: '换进去，然后在里面继续想办法', p: 'us2003', s: 'ok1999' },
+      { label: '换一部分，剩下那点一定留给自己', p: 'be2006', s: 'hg2013' }
+    ]
+  },
+
+  /* ---------- 维度五：对传统与创新的看法 ---------- */
+  {
+    no: 12, dim: '传统与创新', weight: 1.2,
+    text: '对于老歌、老规矩这类「上一代人留下的东西」，你的态度是？',
+    options: [
+      { label: '里面藏着答案，值得翻出来重新做一遍', p: 'tp2005', s: 'us2003' },
+      { label: '尊重它，但我不想活在里面', p: 'ok1999', s: 'op2009' },
+      { label: '更想听它还没成型的那个版本', p: 'us2003', s: 'bt2002' },
+      { label: '会想起留下它的人，想把那件事记下来', p: 'hg2013', s: 'tp2005' }
+    ]
+  },
+  {
+    no: 13, dim: '传统与创新', weight: 1.1,
+    text: '开始做一件全新的东西时，你的做法是？',
+    options: [
+      { label: '先做一个能跑起来的粗糙版本', p: 'us2003', s: 'op2009' },
+      { label: '磨到每个细节都对得起自己才拿出来', p: 'tp2005', s: 'bt2002' },
+      { label: '凭第一口气做下去，先别想太多', p: 'dt1997', s: 'ok1999' },
+      { label: '做到一半推翻重来，因为感觉已经不对了', p: 'op2009', s: 'be2006' }
+    ]
+  },
+
+  /* ---------- 维度六：面对失去和遗憾的方式 ---------- */
+  {
+    no: 14, dim: '失去与遗憾', weight: 1.0,
+    text: '错过一件本该属于你的事之后，你多半？',
+    options: [
+      { label: '翻篇，下一件事更有意思', p: 'dt1997', s: 'us2003' },
+      { label: '嘴上说没事，却反复回想其中的细节', p: 'ok1999', s: 'bt2002' },
+      { label: '把它写下来，让它在某个地方留着结案', p: 'bt2002', s: 'hg2013' },
+      { label: '会想「如果当初」，然后继续过日子', p: 'be2006', s: 'hg2013' }
+    ]
+  },
+  {
+    no: 15, dim: '失去与遗憾', weight: 1.2,
+    text: '关于告别，你更像哪一种？',
+    options: [
+      { label: '一定要好好说再见，不留下悬案', p: 'hg2013', s: 'tp2005' },
+      { label: '不打招呼就走，怕场面难看', p: 'ok1999', s: 'dt1997' },
+      { label: '告别只是下一次见面的开场而已', p: 'us2003', s: 'dt1997' },
+      { label: '人走了，东西还在，那就够了', p: 'be2006', s: 'hg2013' }
+    ]
+  },
+  {
+    no: 16, dim: '失去与遗憾', weight: 1.0,
+    text: '一段已经结束但很重要的关系，你希望它？',
+    options: [
+      { label: '存档，偶尔打开看一下', p: 'be2006', s: 'hg2013' },
+      { label: '变成养分，以后别再回来', p: 'op2009', s: 'us2003' },
+      { label: '保持联系，换一种形式继续存在', p: 'hg2013', s: 'ok1999' },
+      { label: '彻底删掉，包括照片', p: 'dt1997', s: 'op2009' }
+    ]
+  },
+
+  /* ---------- 维度七：自我认知与表达欲 ---------- */
+  {
+    no: 17, dim: '自我表达', weight: 1.0,
+    text: '你对外表达的分寸通常接近？',
+    options: [
+      { label: '想发就发，不太管别人怎么读', p: 'dt1997', s: 'op2009' },
+      { label: '打了很多字，最后只留下一句玩笑', p: 'ok1999', s: 'bt2002' },
+      { label: '想很久，最后多半删掉不发', p: 'bt2002', s: 'tp2005' },
+      { label: '以记录为主，更像写给以后的自己', p: 'hg2013', s: 'us2003' }
+    ]
+  },
+  {
+    no: 18, dim: '自我表达', weight: 1.1,
+    text: '被人评价的时候，哪一句你最受不了？',
+    options: [
+      { label: '「你不太真诚。」', p: 'dt1997', s: 'op2009' },
+      { label: '「你想太多了。」', p: 'bt2002', s: 'tp2005' },
+      { label: '「你变了。」', p: 'op2009', s: 'us2003' },
+      { label: '「你什么都不在乎。」', p: 'be2006', s: 'ok1999' }
+    ]
+  },
+
+  /* ---------- 维度八：面对现实和理想的选择 ---------- */
+  {
+    no: 19, dim: '现实与理想', weight: 1.2,
+    text: '当现实和理想差得很远的时候，你会？',
+    options: [
+      { label: '在现实里搭一段够得到理想的台阶', p: 'tp2005', s: 'us2003' },
+      { label: '不谈了，直接去做理想里那件事', p: 'op2009', s: 'dt1997' },
+      { label: '说服自己，其实现实这样也挺好的', p: 'ok1999', s: 'hg2013' },
+      { label: '承认差距，把它写进正在做的东西里', p: 'bt2002', s: 'hg2013' }
+    ]
+  },
+  {
+    no: 20, dim: '现实与理想', weight: 1.0,
+    text: '十年之后回头看今天，你希望自己？',
+    options: [
+      { label: '还在做现在这件事，但它已经被我改得更好了', p: 'tp2005', s: 'op2009' },
+      { label: '完全待在另一个地方', p: 'us2003', s: 'dt1997' },
+      { label: '和同一批人还在一起', p: 'hg2013', s: 'tp2005' },
+      { label: '已经记不太清今天了，但过得不坏', p: 'be2006', s: 'ok1999' }
+    ]
+  }
+];
+</script>
+
+<!-- ===== 逻辑层：评分规则 + 海报生成，不含界面代码 ===== -->
+<script>
+/* ===== js/scoring.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * js/scoring.js —— 评分算法（逻辑层，独立业务规则，不含界面代码）
+ *
+ * 算法说明：
+ *   1. 每个选项给「主人格」加 PRIMARY 分，给「副人格」加 SECONDARY 分。
+ *   2. 每题再乘以该题的 weight（见 content/questions.js）。
+ *   3. 八张专辑各得一个总分，换算成百分比用于展示。
+ *   4. 第一名 = 主人格。
+ *   5. 若 第二名/第一名 >= DUAL_RATIO，判定为「双重人格倾向」，同时展示两者。
+ *   6. 最后一名作为「距离你最远的切面」展示。
+ *   7. 名次相同时按专辑年代顺序取前者，保证同一份答案永远得到同一结果。
+ *
+ * 调参入口全部在下面的 CONFIG 里，不要在别处写死数字。
+ * ============================================================= */
+
+window.DT_SCORING = (function () {
+
+  var CONFIG = {
+    PRIMARY: 3,        // 选项主人格得分
+    SECONDARY: 1,      // 选项副人格得分
+    DUAL_RATIO: 0.93,  // 第二名 / 第一名 达到此比例即显示双重人格倾向
+                       // 实测触发率约 25%（太大→人人都双人格，太小→永不触发）
+    ROUND: 1           // 百分比保留小数位
+  };
+
+  // 专辑顺序：仅用于名次相同时的稳定排序（年代顺序）
+  var ORDER = ['dt1997', 'ok1999', 'bt2002', 'us2003', 'tp2005', 'be2006', 'op2009', 'hg2013'];
+
+  /**
+   * 计算八维得分
+   * @param {Object} answers  { 题号(1..n): 选项下标(0..3) }
+   * @param {Array}  questions  DT_QUESTIONS
+   * @param {Array}  albumIds   八张专辑 id
+   * @returns {Object} 见下方结构
+   */
+  function compute(answers, questions, albumIds) {
+    var scores = {};
+    albumIds.forEach(function (id) { scores[id] = 0; });
+
+    questions.forEach(function (q) {
+      var pick = answers[q.no];
+      if (pick === undefined || pick === null) return;
+      var opt = q.options[pick];
+      if (!opt) return;
+      var w = typeof q.weight === 'number' ? q.weight : 1;
+      if (opt.p && scores[opt.p] !== undefined) scores[opt.p] += CONFIG.PRIMARY * w;
+      if (opt.s && scores[opt.s] !== undefined) scores[opt.s] += CONFIG.SECONDARY * w;
+    });
+
+    // 排序：分数降序，分数相同按专辑年代升序，保证结果可复现
+    var rank = albumIds.slice().sort(function (a, b) {
+      if (scores[b] !== scores[a]) return scores[b] - scores[a];
+      return ORDER.indexOf(a) - ORDER.indexOf(b);
+    });
+
+    var total = 0;
+    albumIds.forEach(function (id) { total += scores[id]; });
+
+    var shares = {};
+    albumIds.forEach(function (id) {
+      shares[id] = total > 0 ? (scores[id] / total) * 100 : 0;
+    });
+
+    var main = rank[0];
+    var second = rank[1];
+    var ratio = scores[main] > 0 ? scores[second] / scores[main] : 1;
+    var isDual = ratio >= CONFIG.DUAL_RATIO;
+
+    return {
+      scores: scores,
+      shares: shares,
+      rank: rank,
+      main: main,
+      second: second,
+      ratio: ratio,
+      isDual: isDual,
+      far: rank[rank.length - 1],
+      farLabel: '距离你最远的切面',
+      percentOf: function (id) {
+        return Number(shares[id].toFixed(CONFIG.ROUND));
+      }
+    };
+  }
+
+  /** 生成用于分享链接的结果参数 */
+  function toShareParams(result) {
+    var p = 'r=' + result.main;
+    if (result.isDual) p += '&d=' + result.second;
+    return p;
+  }
+
+  return {
+    CONFIG: CONFIG,
+    ORDER: ORDER,
+    compute: compute,
+    toShareParams: toShareParams
+  };
+})();
+
+
+/* ===== js/poster.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * js/poster.js —— 分享海报生成（Canvas 绘制，纯本地，无外部资源）
+ *
+ * 输出：PNG（2 倍图），含人格名称、专辑名称、代表性描述与站点名称。
+ * 配色与网页保持一致：深色底 + 专辑专属霓虹强调色（由 app.js 提亮后写入 album.__accent）。
+ * 修改海报版式只需改 draw() 里的坐标与字号。
+ * ============================================================= */
+
+window.DT_POSTER = (function () {
+
+  var W = 750, H = 1060, SCALE = 2;
+
+  function wrap(ctx, text, maxWidth) {
+    var lines = [], cur = '';
+    for (var i = 0; i < text.length; i++) {
+      var test = cur + text[i];
+      if (ctx.measureText(test).width > maxWidth && cur.length > 0) {
+        lines.push(cur); cur = text[i];
+      } else { cur = test; }
+    }
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  function grain(ctx, w, h, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    for (var i = 0; i < 2200; i++) {
+      ctx.fillStyle = i % 3 === 0 ? '#000' : '#fff';
+      ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+    }
+    ctx.restore();
+  }
+
+  /**
+   * @param {Object} album    DT_ALBUMS 中的一项
+   * @param {Object} persona  DT_PERSONAS 中的一项
+   * @param {Object} result   DT_SCORING.compute 的返回值（用于显示百分比）
+   */
+  function draw(album, persona, result) {
+    var c = document.createElement('canvas');
+    c.width = W * SCALE; c.height = H * SCALE;
+    var ctx = c.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+
+    // 深色底 + 专辑专属霓虹强调色（与网页同一套值）
+    var bg     = '#0a0a0c';
+    var tx     = '#f4f2ee';
+    var tx2    = 'rgba(244,242,238,.62)';
+    var tx3    = 'rgba(244,242,238,.36)';
+    var line   = 'rgba(255,255,255,.10)';
+    var barBg  = 'rgba(255,255,255,.08)';
+    var accent = album.__accent || album.palette.accent;
+
+    var mono = 'SFMono-Regular, Consolas, "Courier New", monospace';
+    var sans = '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", Arial, sans-serif';
+
+    // 底
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    // 顶部光晕：用强调色做一层柔光，替代原来的实色块
+    var g = ctx.createRadialGradient(W * .5, -60, 40, W * .5, -60, 620);
+    g.addColorStop(0, accent);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.save();
+    ctx.globalAlpha = .30;
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, 460);
+    ctx.restore();
+
+    // 顶部标识
+    ctx.fillStyle = accent;
+    ctx.font = '600 13px ' + mono;
+    letterSpace(ctx, 'DAVID TAO', 58, 64, 8);
+    ctx.fillStyle = tx3;
+    ctx.font = '11px ' + mono;
+    letterSpace(ctx, 'MUSIC PERSONALITY TEST', 58, 88, 4);
+
+    // 年份：大字号无衬线
+    ctx.fillStyle = tx;
+    ctx.font = '800 96px ' + sans;
+    ctx.fillText(String(album.year), 54, 208);
+
+    ctx.fillStyle = accent;
+    ctx.font = '11px ' + mono;
+    letterSpace(ctx, album.code, 58, 240, 3);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = tx;
+    ctx.font = '600 21px ' + sans;
+    ctx.fillText(album.title, W - 56, 132);
+    ctx.font = '13px ' + sans;
+    ctx.fillStyle = tx2;
+    ctx.fillText(album.kind, W - 56, 158);
+    ctx.textAlign = 'left';
+
+    // 分隔线
+    ctx.fillStyle = line; ctx.fillRect(56, 272, W - 112, 1);
+
+    // 人格名
+    var y = 330;
+    ctx.fillStyle = tx;
+    ctx.font = '800 58px ' + sans;
+    ctx.fillText(persona.name, 56, y + 22);
+
+    ctx.fillStyle = tx3;
+    ctx.font = '12px ' + mono;
+    letterSpace(ctx, persona.en.toUpperCase(), 58, y + 50, 4);
+
+    // 描述
+    ctx.fillStyle = accent;
+    ctx.fillRect(56, y + 76, 3, 104);
+    ctx.fillStyle = tx2;
+    ctx.font = '400 22px ' + sans;
+    var lines = wrap(ctx, persona.tagline, W - 150);
+    lines.slice(0, 4).forEach(function (l, i) {
+      ctx.fillText(l, 76, y + 108 + i * 34);
+    });
+
+    // 关键词
+    var kwy = y + 232;
+    ctx.fillStyle = tx3;
+    ctx.font = '10px ' + mono;
+    letterSpace(ctx, 'KEYWORDS', 58, kwy, 3);
+    ctx.fillStyle = tx;
+    ctx.font = '600 22px ' + sans;
+    ctx.fillText(album.keywords.join('  ·  '), 58, kwy + 36);
+
+    // 前五名唱片配比
+    var top = result.rank.slice(0, 5);
+    var by = kwy + 74;
+    ctx.font = '10px ' + mono;
+    top.forEach(function (id, i) {
+      var yy = by + i * 30;
+      var isMain = id === result.main;
+      var val = Number(result.shares[id]);
+      ctx.fillStyle = barBg;
+      ctx.fillRect(58, yy - 7, W - 116, 3);
+      ctx.fillStyle = isMain ? accent : tx3;
+      ctx.fillRect(58, yy - 7, (W - 116) * Math.min(1, val / 40), 3);
+      ctx.fillStyle = isMain ? tx : tx3;
+      ctx.font = isMain ? '600 10px ' + mono : '10px ' + mono;
+      ctx.textAlign = 'right';
+      ctx.fillText(albumYearLabel(id), W - 58, yy - 14);
+      ctx.textAlign = 'left';
+      ctx.font = '10px ' + mono;
+    });
+
+    // 建议聆听
+    var sy = by + 5 * 30 + 14;
+    ctx.fillStyle = tx3;
+    ctx.font = '10px ' + mono;
+    letterSpace(ctx, 'LISTEN TO', 58, sy, 3);
+    ctx.fillStyle = tx;
+    ctx.font = '600 20px ' + sans;
+    persona.songs.slice(0, 3).forEach(function (s, i) {
+      ctx.fillText('《' + s.name + '》', 58, sy + 36 + i * 32);
+    });
+
+    // 页脚
+    ctx.fillStyle = line; ctx.fillRect(56, H - 124, W - 112, 1);
+    ctx.fillStyle = tx;
+    ctx.font = '600 16px ' + sans;
+    ctx.fillText('DAVID TAO · 你是哪一种陶喆音乐人格？', 56, H - 84);
+    ctx.fillStyle = tx3;
+    ctx.font = '11px ' + mono;
+    letterSpace(ctx, '1997—2013 · EIGHT ALBUMS · EIGHT SELVES', 58, H - 58, 2);
+
+    grain(ctx, W, H, 0.035);
+    return c;
+  }
+
+  function albumYearLabel(id) {
+    try {
+      var list = window.DT_ALBUMS || [];
+      for (var i = 0; i < list.length; i++) if (list[i].id === id) return String(list[i].year);
+    } catch (e) { /* 兜底 */ }
+    return id;
+  }
+
+  function letterSpace(ctx, text, x, y, sp) {
+    var cx = x;
+    for (var i = 0; i < text.length; i++) {
+      ctx.fillText(text[i], cx, y);
+      cx += ctx.measureText(text[i]).width + sp;
+    }
+  }
+
+  function download(album, persona, result) {
+    var c = draw(album, persona, result);
+    var name = 'DAVID-TAO-' + persona.en.replace(/\s+/g, '-') + '.png';
+    // 统一走 data: URL —— blob: URL 在 file:// 协议下会被部分浏览器拦截下载，
+    // data: URL 在本地直接打开和部署到 Pages 后都可靠。
+    triggerDownload(c.toDataURL('image/png'), name);
+  }
+
+  function triggerDownload(href, name) {
+    var a = document.createElement('a');
+    a.href = href; a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  return { draw: draw, download: download };
+})();
+</script>
+
+<!-- ===== 界面层 ===== -->
+<script>
+/* ===== js/app.js ===== */
+/* =============================================================
+ * DAVID TAO · 音乐人格测试
+ * js/app.js —— 界面与交互（不含评分规则，评分在 js/scoring.js）
+ *
+ * 流程（对齐参考站）：
+ *   intro（封面）→ quiz（20 题逐题）→ result（结果）
+ *   弹窗：歌曲深度解读 / 单曲惊喜彩蛋 / 另外七张唱片
+ *
+ * 路由：#/ 封面 | #/quiz 答题 | #/result/<albumId>[?d=<secondId>]
+ * ============================================================= */
+
+(function () {
+  'use strict';
+
+  var ALBUMS   = window.DT_ALBUMS;
+  var PERSONAS = window.DT_PERSONAS;
+  var QUESTIONS= window.DT_QUESTIONS;
+  var SCORING  = window.DT_SCORING;
+  var POSTER   = window.DT_POSTER;
+  var DEEP     = window.DT_DEEP;
+  var BLIND    = window.DT_BLIND;
+  var IDS      = ALBUMS.map(function (a) { return a.id; });
+
+  var contentEl = document.getElementById('content-area');
+  var noteEl    = document.getElementById('author-note-container');
+  var modalRoot = document.getElementById('modal-root');
+
+  var step = 'intro';
+  var idx = 0;              // 当前题下标（0 基）
+  var answers = {};         // { 题号: 选项下标 }
+  var result = null;
+
+  /* ---------------- 工具 ---------------- */
+  function $(sel) { return document.querySelector(sel); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function albumOf(id) {
+    for (var i = 0; i < ALBUMS.length; i++) if (ALBUMS[i].id === id) return ALBUMS[i];
+    return ALBUMS[0];
+  }
+  function toast(msg) {
+    var t = $('#toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t.__t);
+    t.__t = setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+  /**
+   * 专辑原色偏暗且多为低饱和，直接用在深色底上会"糊掉"。
+   * 这里统一做一次提亮：饱和度拉高、亮度压到 60% 上下，得到一档霓虹强调色。
+   */
+  function neon(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+    if (!m) return '#e2622a';
+    var n = parseInt(m[1], 16);
+    var r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var l = (max + min) / 2, h = 0, s = 0;
+    if (max !== min) {
+      var d = max - min;
+      s = l > .5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r)      h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      else if (max === g) h = ((b - r) / d + 2) / 6;
+      else                h = ((r - g) / d + 4) / 6;
+    }
+    // 深色底上的黄金区间：饱和度够、亮度够，但不刺眼
+    s = Math.min(.92, s * 1.35 + .12);
+    l = Math.min(.70, Math.max(.58, l < .5 ? l + .22 : l + .06));
+    return 'hsl(' + Math.round(h * 360) + ' ' + Math.round(s * 100) + '% ' + Math.round(l * 100) + '%)';
+  }
+  function setTheme(album) {
+    var accent = neon(album.palette.accent);
+    album.__accent = accent;   // 海报模块复用同一个提亮结果
+    document.documentElement.style.setProperty('--album-ink', accent);
+    document.documentElement.style.setProperty('--album-accent', accent);
+  }
+
+  /* ---------------- 解锁：人格名只在测过之后才显示 ----------------
+   * 用 localStorage 记住用户已经拿到过的八个人格，未拿到的在封面和
+   * 封面里一律显示为 ??? —— 不让答案提前出现在明面上。
+   * file:// 下部分浏览器禁用存储，全部包 try/catch，失败就当作"全部未解锁"。
+   */
+  var UNLOCK_KEY = 'dt-persona-unlocked';
+  var unlockedMem = {};   // 内存兜底：localStorage 不可用时，本次会话内照样生效
+
+  function unlockedIds() {
+    Object.keys(unlockedMem).forEach(function (k) {
+      if (IDS.indexOf(k) === -1) delete unlockedMem[k];
+    });
+    var mem = Object.keys(unlockedMem);
+    var stored = [];
+    try {
+      var raw = localStorage.getItem(UNLOCK_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) {
+        stored = arr.filter(function (x) { return IDS.indexOf(x) > -1; });
+      }
+    } catch (e) { /* file:// 下部分浏览器禁用存储，忽略 */ }
+    return mem.concat(stored.filter(function (x) { return mem.indexOf(x) === -1; }));
+  }
+
+  /** 解锁一张唱片：先写内存（必定生效），再试着持久化 */
+  function unlock(id) {
+    if (!id || IDS.indexOf(id) === -1) return;
+    if (unlockedIds().indexOf(id) > -1) return;   // 已解锁，不必重复写
+    unlockedMem[id] = true;
+    try {
+      var stored = [];
+      var raw = localStorage.getItem(UNLOCK_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) {
+        stored = arr.filter(function (x) { return IDS.indexOf(x) > -1; });
+      }
+      if (stored.indexOf(id) === -1) stored.push(id);
+      localStorage.setItem(UNLOCK_KEY, JSON.stringify(stored));
+    } catch (e) { /* 无存储权限时静默降级到内存 */ }
+  }
+
+  /* ---------------- 弹窗 ---------------- */
+  function openModal(html) {
+    closeModal();
+    var overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.innerHTML = '<div class="modal">' + html + '</div>';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeModal();
+    });
+    var btn = overlay.querySelector('.modal-close');
+    if (btn) btn.addEventListener('click', closeModal);
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    var old = document.querySelector('.overlay');
+    if (old) old.remove();
+    document.body.style.overflow = '';
+  }
+
+  /** 歌曲深度解读弹窗（对应参考站 showSongModal） */
+  function showSongModal(song) {
+    var analysis = DEEP[song] || '';
+    var html =
+      '<div class="modal-head"><h3>《' + esc(song) + '》<span class="en">DEEP READING</span></h3>' +
+      '<button class="modal-close">关闭 ✕</button></div>' +
+      '<div class="body">' +
+      (analysis
+        ? '<p>' + esc(analysis) + '</p>'
+        : '<p>暂无详细解读。</p>') +
+      '</div>';
+    openModal(html);
+  }
+
+  /** 人格速览弹窗（对应参考站 showModal） */
+  function showPersonaModal(id) {
+    var album = albumOf(id);
+    var p = PERSONAS[id];
+    if (!p) return;
+    // 没测过的唱片不给看人格，只给看音乐本身
+    if (unlockedIds().indexOf(id) === -1) { showAlbumCard(id); return; }
+    setTheme(album);
+    var html =
+      '<div class="modal-head"><h3>' + esc(p.name) + '<span class="en">' + esc(p.en.toUpperCase()) + '</span></h3>' +
+      '<button class="modal-close">关闭 ✕</button></div>' +
+      '<div class="body">' +
+        '<p style="font-size:17px;line-height:1.85;color:var(--tx)">' + esc(p.tagline) + '</p>' +
+        '<p><b>核心性格</b><br>' + p.traits.map(function (t) { return esc(t.t) + '：' + esc(t.d); }).join('<br>') + '</p>' +
+      '</div>' +
+      '<div class="meta">' + esc(album.year) + '　' + esc(album.title) + '　' + esc(album.kind) + '　发行 ' + esc(album.release) + '</div>' +
+      '<div class="foot"><a class="btn solid" href="#/result/' + id + '">查看完整结果 →</a></div>';
+    openModal(html);
+  }
+
+  /**
+   * 唱片本身的档案卡——只看得到音乐：听感、史料、曲目表。
+   * 用于「还没测到过」的唱片：想看它对应哪种人格，得先测出来。
+   */
+  function showAlbumCard(id) {
+    var a = albumOf(id);
+    setTheme(a);
+    var html =
+      '<div class="modal-head"><h3>' + esc(a.title) +
+        '<span class="en">' + esc(a.year) + '　' + esc(a.kind) + '　NO.' + esc(a.no) + '　' + esc(a.code) + '</span></h3>' +
+      '<button class="modal-close">关闭 ✕</button></div>' +
+      '<div class="body">' +
+        '<div class="chips" style="margin-bottom:16px">' +
+          a.keywords.map(function (k) { return '<span class="chip" style="cursor:default">' + esc(k) + '</span>'; }).join('') +
+        '</div>' +
+        '<div class="prose"><p>' + esc(a.sound) + '</p></div>' +
+        '<div class="kicker" style="margin:20px 0 12px">史料 / FACTS</div>' +
+        '<ul class="ticks">' + a.facts.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul>' +
+        '<div class="kicker" style="margin:20px 0 12px">全 ' + a.lineup.length + ' 首 / TRACKLIST</div>' +
+        '<div class="chips">' +
+          a.lineup.map(function (t) { return '<span class="chip" style="cursor:default">' + esc(t) + '</span>'; }).join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="meta">' + esc(a.release) + '　' + esc(a.label) + '　制作人 ' + esc(a.producer) + '</div>' +
+      '<div class="foot"><a class="btn solid" href="#/quiz">去测这张 →</a></div>';
+    openModal(html);
+  }
+
+  /* ---------------- 封面 / INTRO ---------------- */
+  function renderIntro() {
+    var got = unlockedIds();
+    var cells = ALBUMS.map(function (a) {
+      var known = got.indexOf(a.id) > -1;
+      // 未解锁：点开只看到这张唱片的音乐本身；已解锁：亮起人格名，点开是它的完整结果页
+      return '<div class="index-cell' + (known ? ' hit' : ' locked') + '"' +
+        (known ? ' data-go="' + a.id + '"' : ' data-peek="' + a.id + '"') +
+        ' style="--album-ink:' + neon(a.palette.accent) + '">' +
+        '<span class="y">' + esc(a.year) + '</span>' +
+        '<span class="n">' + (known ? esc(PERSONAS[a.id].name) : '? ? ?') + '</span>' +
+        '</div>';
+    }).join('');
+
+    contentEl.innerHTML =
+      '<div class="cover">' +
+        '<div class="disc-wrap">' +
+          '<div class="disc-groove"></div>' +
+          '<div class="disc-label">' +
+            '<b>DAVID TAO</b>' +
+            '<i>33⅓ RPM · STEREO</i>' +
+          '</div>' +
+        '</div>' +
+        '<h1>你是哪一种<br>陶喆音乐人格？</h1>' +
+        '<p class="leadline">从1997—2013，陶喆的八张专辑里总有一张是属于你的镜子</p>' +
+        '<div class="btn-row">' +
+          '<button class="btn solid big" id="start-btn">开始测试 →</button>' +
+        '</div>' +
+        '<div class="index-grid">' + cells + '</div>' +
+      '</div>';
+
+    $('#start-btn').addEventListener('click', function () {
+      resetQuiz();
+      location.hash = '#/quiz';
+    });
+    contentEl.querySelectorAll('[data-peek]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        showPersonaModal(el.getAttribute('data-peek'));
+      });
+    });
+    contentEl.querySelectorAll('[data-go]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        location.hash = '#/result/' + el.getAttribute('data-go');
+      });
+    });
+  }
+
+  function resetQuiz() {
+    answers = {};
+    idx = 0;
+    result = null;
+  }
+
+  /* ---------------- 答题 / QUIZ ---------------- */
+  function renderQuiz() {
+    var q = QUESTIONS[idx];
+    if (!q) return;
+    var progress = ((idx + 1) / QUESTIONS.length) * 100;
+    var picked = answers[q.no];
+    // 唱片曲目的编号写法：TRACK 03 / 20
+    var trackNo = (idx + 1) < 10 ? '0' + (idx + 1) : String(idx + 1);
+
+    contentEl.innerHTML =
+      '<div>' +
+        '<div class="quiz-top">' +
+          '<div><div class="kicker track-no">TRACK ' + trackNo + ' <em>/</em> ' + QUESTIONS.length + '</div></div>' +
+          '<div class="kicker">' + esc(q.dim) + '</div>' +
+        '</div>' +
+        '<div class="progress"><div class="progress-fill" style="width:' + progress + '%"></div></div>' +
+        '<div class="q-dim kicker">DIMENSION · ' + esc(q.dim) + '</div>' +
+        '<h2 class="q-text">' + esc(q.text) + '</h2>' +
+        '<div class="options-list" id="options-container"></div>' +
+        '<div class="nav-actions">' +
+          '<button class="btn ghost" id="prev-btn"' + (idx === 0 ? ' disabled' : '') + '>← 上一题</button>' +
+          '<span class="hint">键盘 1—4 选择 · Enter 下一题</span>' +
+          (picked !== undefined
+            ? '<button class="btn solid" id="next-btn">' + (idx === QUESTIONS.length - 1 ? '查看结果 →' : '下一题 →') + '</button>'
+            : '') +
+        '</div>' +
+      '</div>';
+
+    var container = $('#options-container');
+    container.innerHTML = q.options.map(function (opt, i) {
+      return '<div class="option-item' + (picked === i ? ' on' : '') + '" data-i="' + i + '">' +
+        '<span class="key">' + String.fromCharCode(65 + i) + '</span>' +
+        '<span class="txt">' + esc(opt.label) + '</span>' +
+        '</div>';
+    }).join('');
+    container.querySelectorAll('[data-i]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        choose(Number(el.getAttribute('data-i')));
+      });
+    });
+
+    var pb = $('#prev-btn');
+    if (pb) pb.addEventListener('click', function () { if (idx > 0) { idx--; render(); } });
+    var nb = $('#next-btn');
+    if (nb) nb.addEventListener('click', advance);
+  }
+
+  /** 选中并自动进入下一题（对齐参考站：点选项即翻页） */
+  function choose(i) {
+    answers[QUESTIONS[idx].no] = i;
+    if (idx < QUESTIONS.length - 1) {
+      render();                       // 先回显选中态
+      setTimeout(function () { idx++; render(); }, 240);
+    } else {
+      render();
+      setTimeout(computeResult, 240);
+    }
+  }
+
+  /** 手动翻页：已作答才可前进 */
+  function advance() {
+    if (answers[QUESTIONS[idx].no] === undefined) return;
+    if (idx < QUESTIONS.length - 1) { idx++; render(); }
+    else computeResult();
+  }
+
+  function computeResult() {
+    result = SCORING.compute(answers, QUESTIONS, IDS);
+    var hash = '#/result/' + result.main;
+    if (result.isDual) hash += '?d=' + result.second;
+    location.hash = hash;
+  }
+
+  /* ---------------- 结果 / RESULT ---------------- */
+  function renderResult(id, query) {
+    var album = albumOf(id);
+    var persona = PERSONAS[album.id];
+    if (!persona) return;
+
+    // 直接打开分享链接（没有作答记录）：构造一份仅供展示的配比
+    if (!result || result.main !== album.id) {
+      var dualId = '';
+      if (query) {
+        var m = /d=([a-z0-9]+)/.exec(query);
+        if (m) dualId = m[1];
+      }
+      var sc = {}, sh = {};
+      IDS.forEach(function (x) { sc[x] = x === album.id ? 42 : 8.3; });
+      IDS.forEach(function (x) { sh[x] = x === album.id ? 33 : 9.6; });
+      var rk = IDS.slice().sort(function (a, b) { return sc[b] - sc[a]; });
+      result = {
+        scores: sc, shares: sh, rank: rk, main: album.id,
+        second: dualId || rk[1], ratio: dualId ? 0.95 : 0.5,
+        isDual: !!dualId, far: rk[rk.length - 1], fromLink: true
+      };
+    }
+    setTheme(album);
+
+    /* 拿到结果即解锁：主人格必定算，双重人格的第二张也算
+     * （它的名字已经出现在你的结果页里，再藏起来反而不通）。
+     * 「你的反面」不算 —— 那不是你。 */
+    unlock(album.id);
+    if (!result.fromLink && result.isDual && result.second) unlock(result.second);
+
+    var h = '';
+
+    /* --- 头部 --- */
+    h += '<div class="result-head">' +
+      '<span class="tag">结果 NO.' + esc(album.no) + '　' + esc(album.code) + '</span>' +
+      '<div class="album-line">' +
+        '<span class="year">' + esc(album.year) + '</span>' +
+        '<span class="ttl">' + esc(album.title) + '</span>' +
+        '<span class="kind">' + esc(album.kind) + '　发行 ' + esc(album.release) + '</span>' +
+      '</div>' +
+      '<h1 class="result-name">' + esc(persona.name) + '</h1>' +
+      '<div class="en">' + esc(persona.en.toUpperCase()) + '</div>' +
+      '<p class="tagline">' + esc(persona.tagline) + '</p>' +
+    '</div>';
+
+    h += '<div class="grid-2"><div>';
+
+    /* --- 核心性格：默认展开，这是结果最该先读到的部分 --- */
+    h += blockOpen('核心性格 / CORE', persona.traits.map(function (t) {
+      return '<div class="trait"><div class="t">' + esc(t.t) + '</div><div class="d">' + esc(t.d) + '</div></div>';
+    }).join(''));
+
+    /* --- 音乐分析 + 争议 --- */
+    h += block('为什么是这张唱片 / THE ALBUM',
+      '<div class="prose"><p>' + esc(persona.analysis) + '</p>' +
+      '<p class="kicker" style="margin-top:16px">' + esc(album.label) + '　制作人 ' + esc(album.producer) + '　共 ' + album.trackCount + ' 首</p></div>' +
+      '<div class="kicker" style="margin:22px 0 12px">另一种声音 / THE OTHER VIEW</div>' +
+      '<div class="debate"><p>' + esc(persona.debate) + '</p></div>');
+
+    /* --- 推荐曲目 + 深度解读入口 --- */
+    h += block('你可能爱听', persona.songs.map(function (s, k) {
+      return '<div class="song">' +
+        '<div><span class="nm">《' + esc(s.name) + '》</span><span class="tg">' + esc(s.tag) + '</span></div>' +
+        '<div class="wh">' + esc(s.why) + '</div>' +
+        '<button class="deep" data-song="' + k + '">📖 深度解读</button>' +
+        '</div>';
+    }).join(''));
+
+    h += '</div><aside>';
+
+    /* --- 八维条 --- */
+    h += '<div class="block"><h3>八张唱片的距离 / THE EIGHT</h3><div class="bars">' +
+      IDS.map(function (x) {
+        var a = albumOf(x);
+        var pct = result.fromLink ? (x === album.id ? 33 : 9.6) : Number(result.shares[x].toFixed(1));
+        return '<div class="bar' + (x === album.id ? ' top' : '') + '">' +
+          '<span class="lbl">' + esc(a.year) + '</span>' +
+          '<span class="track"><i style="width:' + Math.min(100, pct * 2.7) + '%"></i></span>' +
+          '<span class="pc">' + pct.toFixed(1) + '%</span>' +
+          '</div>';
+      }).join('') + '</div></div>';
+
+    /* --- 双重人格 / 最远切面 --- */
+    if (result.isDual && result.second) {
+      var dAlbum = albumOf(result.second);
+      h += '<div class="dual"><div class="kicker">双重人格倾向 / DOUBLE</div>' +
+        '<div class="nm">' + esc(PERSONAS[result.second].name) + '</div>' +
+        '<div class="st">' + esc(dAlbum.title) + '（' + esc(dAlbum.year) + '）的气质在你身上也很重：' +
+        esc(PERSONAS[result.second].tagline.split('。')[0]) + '。</div>' +
+        '<div style="margin-top:12px"><a class="jump" href="#/result/' + result.second + '">看看这一面 →</a></div></div>';
+    } else {
+      h += '<div class="dual" style="border-style:dashed"><div class="kicker">你的反面 / FURTHEST</div>' +
+        '<div class="nm">' + esc(PERSONAS[result.far].name) + '</div>' +
+        '<div class="st">距离你最远的切面：' + esc(albumOf(result.far).title) + '。' +
+        '它未必是缺点，只是你现在最不需要的那个方向。</div>' +
+        '<div style="margin-top:12px"><a class="jump" href="#/result/' + result.far + '">去看看它 →</a></div></div>';
+    }
+
+    /* --- 操作区 --- */
+    h += '<div class="block" style="margin-top:24px">' +
+      '<button class="btn solid" id="poster-btn" style="width:100%;justify-content:center">保存分享海报 ↓</button>' +
+      '<button class="btn ghost" id="copy-btn" style="width:100%;justify-content:center;margin-top:10px">复制结果链接</button>' +
+      '<button class="btn ghost" id="retry-btn" style="width:100%;justify-content:center;margin-top:10px">重新测试</button>' +
+      '</div>';
+
+    /* --- 另外七张：只列唱片，不列人格名（避免把答案摊在结果页上） --- */
+    h += block('另外七张唱片 / THE OTHER SEVEN',
+      '<div class="chips">' +
+      ALBUMS.map(function (a) {
+        if (a.id === album.id) return '';
+        return '<button class="chip" data-peek="' + a.id + '">' + esc(a.year) + '《' + esc(a.title) + '》</button>';
+      }).join('') + '</div>' +
+      '<p class="kicker" style="margin-top:14px">点开看这张唱片的音乐本身；它对应哪种人格，要测过才知道。</p>');
+
+    h += '</aside></div>';
+
+    /* --- 彩蛋 --- */
+    var box = BLIND[album.id];
+    if (box) {
+      h += '<div class="blind">' +
+        '<div class="kicker">🎁 ' + esc(box.tag) + '</div>' +
+        '<div class="title">' + esc(box.title) + '</div>' +
+        '<div class="from">' + esc(box.from) + '</div>' +
+        '<p>' + esc(box.desc) + '</p>' +
+        (box.lyric ? '<div class="lyric">“' + esc(box.lyric) + '”</div>' : '') +
+        '<p class="note">☆ ' + esc(box.note) + '　— ' + esc(box.persona) + '</p>' +
+      '</div>';
+    }
+
+    /* --- 结尾 --- */
+    h += '<p class="closing">' + esc(persona.closing) + '</p>';
+
+    h += '<div class="result-foot">' +
+      '<div class="rule-strong"></div>' +
+      '<div class="btn-row" style="margin-top:22px">' +
+      '<button class="btn" id="retry-btn2">重新测试</button>' +
+      '<button class="btn ghost" id="home-btn">回到封面</button>' +
+      '</div></div>';
+
+    contentEl.innerHTML = h;
+
+    /* --- 事件绑定 --- */
+    contentEl.querySelectorAll('[data-song]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var s = persona.songs[Number(el.getAttribute('data-song'))];
+        if (s) showSongModal(s.name);
+      });
+    });
+    contentEl.querySelectorAll('[data-peek]').forEach(function (el) {
+      el.addEventListener('click', function () { showPersonaModal(el.getAttribute('data-peek')); });
+    });
+    $('#poster-btn').addEventListener('click', function () {
+      /* 不做真的导出：跨设备/跨浏览器下载不稳定，直接提示截图更可靠 */
+      toast('自行截图保存吧~');
+    });
+    $('#copy-btn').addEventListener('click', function () {
+      var url = (location.origin && location.origin !== 'null')
+        ? location.origin + location.pathname + location.hash
+        : location.href;
+      copy(url);
+    });
+    $('#retry-btn').addEventListener('click', restart);
+    $('#retry-btn2').addEventListener('click', restart);
+    $('#home-btn').addEventListener('click', function () { location.hash = '#/'; });
+  }
+
+  /** 始终展开的板块 */
+  function blockOpen(title, inner) {
+    return '<div class="block"><h3>' + title + '</h3>' + inner + '</div>';
+  }
+  /** 默认收起的板块：结果页信息量大，读不读由用户决定 */
+  function block(title, inner) {
+    return '<details class="fold"><summary>' + title + '</summary>' +
+      '<div class="fold-body">' + inner + '</div></details>';
+  }
+
+  function restart() {
+    resetQuiz();
+    location.hash = '#/quiz';
+  }
+
+  function copy(text) {
+    // 本地直接打开时，复制出来的是本机路径，发给别人打不开，需要说清楚
+    var isFile = location.protocol === 'file:';
+    var okMsg = isFile
+      ? '已复制，但这是你电脑上的本地路径，朋友打不开'
+      : '链接已复制，发给朋友即可';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); toast(okMsg); }
+      catch (e) { toast('复制失败，请手动复制地址栏'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ---------------- 主渲染 ---------------- */
+  function render() {
+    noteEl.innerHTML = '<span>—夏青丨AI生成仅供娱乐—</span>';
+    if (step === 'intro') renderIntro();
+    else if (step === 'quiz') renderQuiz();
+    else renderResult(currentResultId, currentQuery);
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------------- 路由 ---------------- */
+  var currentResultId = null;
+  var currentQuery = '';
+
+  function parseHash() {
+    var h = (location.hash || '#/').replace(/^#\/?/, '');
+    var parts = h.split('?');
+    var seg = parts[0].split('/');
+    return { view: seg[0] || '', arg: seg[1] || '', query: parts[1] || '' };
+  }
+
+  function route() {
+    var r = parseHash();
+    if (r.view === 'quiz') { step = 'quiz'; idx = Math.min(idx, QUESTIONS.length - 1); render(); return; }
+    if (r.view === 'result' && r.arg && PERSONAS[r.arg]) {
+      step = 'result'; currentResultId = r.arg; currentQuery = r.query; render(); return;
+    }
+    step = 'intro'; render();
+  }
+
+  /* ---------------- 键盘 ---------------- */
+  document.addEventListener('keydown', function (e) {
+    if (document.querySelector('.overlay')) {
+      if (e.key === 'Escape') closeModal();
+      return;
+    }
+    if (step !== 'quiz') return;
+    var n = ['1', '2', '3', '4'].indexOf(e.key);
+    if (n >= 0 && QUESTIONS[idx].options[n]) choose(n);
+    if (e.key === 'Enter') advance();
+    if (e.key === 'Backspace') { e.preventDefault(); if (idx > 0) { idx--; render(); } }
+  });
+
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>
